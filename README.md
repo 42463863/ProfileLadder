@@ -1,2 +1,2 @@
-# profileLadder
+# ProfileLadder
 Statistical Software paper
