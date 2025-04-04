@@ -1,0 +1,26 @@
+#' Covid-19 in the Czech Republic 
+#'
+#' An illustrative dataset---a matrix (of the dimensions 4\code{x}8) with the cumulative amounts of
+#' the first reported cases of the Covid-19 pandemic in the Czech Republic. Four cohorts 
+#' are defined by the Czech counties where the first reported case occured in March 1st -- 7th, 2020 (e.g., Prague, 
+#' Vsetín, or Dečín), March 8th -- March 14th (e.g, Brno, České Budějovice, Kladno, Mladá Boleslav, Plzeň), 
+#' March 15th -- March 21st (e.g., Chomutov, Český Krumlov, Písek, Tábor), and, finally, during the week in 
+#' March 22nd -- March 28th, 2020 (e.g., Jindřichův Hradec, Klatovy, Teplice). 
+#' 
+#' Consequently, the cumulative reported cases are given in the table for 8 consecutive weeks (a 7 days period)
+#' starting with March 1st, 2020. 
+#' 
+#' @name covid19CZ
+#' 
+#' @docType data
+#' @usage data(covid19CZ)
+#'
+#' @format ## covid19CZ
+#' A simple \code{4x8} matrix of a class \code{triangle} with four cohorts (rows) consecutively observed 
+#' for 8 weeks (starting with the first week---the seven day period from March 1st till March 7th). 
+#' 
+#' @source Institute of Health Information and Statistics of the Czech Republic 
+#' \url{https://uzis.cz/index-en.php}
+NULL
+
+
