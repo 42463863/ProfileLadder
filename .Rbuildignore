@@ -1,0 +1,16 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^.conda$
+^.conda-venv$
+^renv/
+^\.Rprofile$
+^.*\.Rproj$
+^\.Rproj\.user$
+^dockerfiles$
+^.jenkins$
+^.jenkin-ci$
+^jenkins$
+^.*\.groovy$
+^scripts$
+^git_hooks$
+.*bat
