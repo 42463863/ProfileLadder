@@ -7,13 +7,13 @@ Authors@R: c(
     person("Rastislav", "Matus", role = c("ctb")), 
     person("Ivan", "Mizera", role = c("aut")),
     person("Michal", "Pesta", role = c("aut")))
-Description: Functional claims reserving methods based on aggregated chain-ladder data---the run-off triangle functional development profiles implemented---in three nonparametric algorithms (PARALLAX, REACT, and MACRAME) proposed in Maciak, Mizera, and Pešta (2022). 
+Description: Functional claims reserving methods based on aggregated chain-ladder data, also known as the run-off triangle (functional) development profiles, implemented in three nonparametric algorithms (PARALLAX, REACT, and MACRAME) proposed in Maciak, Mizera, and Pešta (2022). 
 Depends: R (>= 4.0.1)
 License: GPL (>=2)
 Encoding: UTF-8
 Imports: ChainLadder (>= 0.2.12), raw
 LazyData: true
-Data: CameronMutual.rda, CFBI.rda, NevadaGeneral.rda
+Data: CameronMutual.rda, covid19CZ.rda, GFCIB.rda, MidwestMutual.rda, NevadaGeneral.rda, xNetSubscribe.rda
 Suggests: knitr
 VignetteBuilder: knitr
 Config/testthat/edition: 3

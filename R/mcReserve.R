@@ -1,52 +1,92 @@
 #' MACRAME based development profile reserve 
 #'
-#' The function takes a cumulative (or incremental) run-off triangle (partially or completely observed)
-#' and returns the reserve estimate obtained by the MACRAME algorithm (see Maciak, Mizera, and Pešta (2022) for further details).
+#' The function takes a cumulative (or incremental) run-off triangle (partially 
+#' or completely observed) and returns the reserve estimate obtained by the 
+#' MACRAME algorithm (see Maciak, Mizera, and Pešta (2022) for further details).
 #'
-#' @param chainLadder cumulative or incremental run-off triangle (the triangle must be of a class \code{triangle} or \code{matrix}) 
-#' in terms of a square matrix with a fully observed upper-left triangular part. If the lower-right part is also provided the function will also return standard residuals but only the upper-left (run-off) triangle
-#' will be used for the reserve estimation purposes
-#' @param cum logical (\code{TRUE} for cumulative triangle, \code{FALSE} for incremental)
-#' @param residuals logical to indicate whether (incremental) residuals should be provided or not. If the run-off triangle is completely observed then the residuals
-#' are obtained in terms of the true increments minus the predicted ones. If the bottom-right triangle is not provided (\code{NA} values) then the residuals are obtained
-#' in terms of a back-fitting approach (see Maciak, Mizera, and Pešta (2022) for further details). However, the back-fitted residuals are only calculated when 
-#' no user specification of the states (in \code{states}) and breaks (in \code{breaks}) is provided. 
-#' @param states numeric value to provide either the number of the states to be used or it provides the actual set of states for the Markov chain model. 
-#' The default setting (\code{states = NULL}) uses the set of states automatically  defined as in Maciak, Mizera, and Pešta (2022) (parameter \code{breaks} is ignored). 
-#' If the number of states is provided by \code{states}, the states or obtained analogously as in Maciak, Mizera, and Pešta (2022), however, 
-#' the number of actual Markov states for estimation is adjusted (parameter \code{breaks} is again ignored). 
+#' @param chainLadder a cumulative or incremental run-off triangle (the triangle 
+#' must be of the class \code{triangle} or \code{matrix}) in terms of a square 
+#' matrix with a fully observed upper-left triangular part. If the lower-right 
+#' part is also provided the function will also return standard residuals but 
+#' only the upper-left (run-off) triangle is be used for the reserve estimation 
+#' purposes
+#' @param cum logical to indicate the time of the input triangle provided 
+#' (DEFAULT value is \code{TRUE} for the cumulative triangle, \code{FALSE} if 
+#' \code{chainLadder} is of the incremental type)
+#' @param residuals logical to indicate whether (incremental) residuals should 
+#' be provided in output or not. If the run-off triangle is completely observed 
+#' then the residuals are obtained in terms of the true increments minus the 
+#' predicted ones. If the bottom-right triangle is not provided (\code{NA} values) 
+#' then the residuals are obtained in terms of a back-fitting approach 
+#' (see Maciak, Mizera, and Pešta (2022) for further details). 
+#' However, the back-fitted residuals are only calculated when 
+#' no user specification of the states (in \code{states}) and breaks 
+#' (in \code{breaks}) is provided
+#' @param states numeric value to provide either the number of the Markov states 
+#' to be used or it can provide an explicit set of the states to be used. 
+#' The default setting (\code{states = NULL}) provides the set of states in a fully 
+#' data-driven manner as proposed in Maciak, Mizera, and Pešta (2022) while any 
+#' choice of  \code{breaks} is ignored. If the number of states is specified by 
+#' \code{states}, the states are obtained analogously as in Maciak, Mizera,
+#' and Pešta (2022), however, the number of actual  states for the estimation is 
+#' adjusted and the parameter \code{breaks} is again ignored 
 #' 
-#' If parameter \code{states} provides an explicit vector of Markov chain states (the smallest state should be larger than the smallest observed increment in the run-off triangle 
-#' and, similarly, the largest state should be smaller than the largest observed increment) then the corresponding bins (breaks) for the run-off triangle increments 
-#' are defined automatically by the midpoints between the states (parameter \code{breaks} must be set to \code{NULL}).
-#' @param breaks vector parameter which provides explicit (unique and monotonly increasing) break points (disjoint bins) for the run-off triangle incremenets. Each bin should be represented by the corresponding Markov chain state value
-#' given in \code{states}. If the breaks are provided as \code{breaks = c(-Inf, ... , Inf)} defining \code{k} bins all together then \code{states} should be a vector of the same length \code{k}.
-#'  Alternatively, the breaks can be also specified by a set of finite numbers defining again \code{k} bins---in such cases, the parameter \code{states} should be of the length \code{length(states) = k + 1}. 
-#' Each value in \code{states} should represent one bin defined by \code{breaks}.   
-#' @param MC logical (\code{DEFAULT = FALSE}) to indicate whether some information about the underlying 
-#' Markov chain process (e.g., Markov chain states or the estimated transition probability matrix) 
-#' should be printed in the output or not.
+#' If parameter \code{states} provides an explicit vector of Markov chain states 
+#' (the smallest state should be larger than the smallest observed increment in 
+#' the run-off triangle and, similarly, the largest state should be smaller than 
+#' the largest observed increment) then the corresponding bins (breaks) for the 
+#' run-off triangle increments are defined automatically by the midpoints between 
+#' the provided states (with \code{breaks} being set to \code{NULL} DEFAULT)
+#' @param breaks vector parameter which provides explicit (unique and monotonly 
+#' increasing) break points (disjoint bins) for the run-off triangle incremenets. 
+#' Each bin should be represented by the corresponding Markov chain state---either 
+#' the values given in \code{states} or provided automatically if \code{states} is 
+#' not a valid vector of the Markov states. If the breaks are provided as 
+#' \code{breaks = c(-Inf, ... , Inf)} defining \code{k} bins all together then 
+#' \code{states} should be a vector of the same length \code{k}. Alternatively, 
+#' the breaks can be also specified by a set of finite numbers defining again 
+#' \code{k} bins---in such cases, the parameter \code{states} should be of the 
+#' length \code{length(states) = k + 1}. Each value in \code{states} should 
+#' represent one bin defined by \code{breaks}
+#' @param MC logical (by DEFAULT set to \code{FALSE}) to indicate whether some 
+#' backgrpound information about the underlying Markov chain process 
+#' (e.g., Markov chain states or the estimated transition probability matrix) 
+#' should be printed in the output or not
 #' 
-#' @returns A list with with the following elements: 
-#' \item{reserve}{numeric vector with four values: Total paid amount (i.e., the sum of the last observed diagonal in a cumulative run-off triangle); Total estimated amount (i.e., the sum of the last column 
-#' in the completed cumulative triangle); Estimated reserve (i.e., the sum of the last column in the completed cumulative triangle minus the sum of the last observed diagonal in \code{chainLadder}); True reserve 
-#' if a completed (true) \code{chainLadder} is provided in the output (i.e., the sum of the last column in \code{chainLadder} minus the sum of the last diagonal in \code{chainLadder})}
+#' @returns An object of the type \code{list} with with the following elements: 
+#' \item{reserve}{numeric vector with four values: Total paid amount (i.e., the 
+#' sum of the last observed diagonal in a cumulative run-off triangle); Total 
+#' estimated amount (i.e., the sum of the last column in the completed cumulative 
+#' triangle); Estimated reserve (i.e., the sum of the last column in the completed 
+#' cumulative triangle minus the sum of the last observed diagonal 
+#' in \code{chainLadder}); True reserve if a completed \code{chainLadder} is 
+#' provided in the output (i.e., the sum of the last column in \code{chainLadder} 
+#' minus the sum of the last diagonal in \code{chainLadder})}
 #' \item{method}{algorithm used for the reserve estimation}
-#' \item{fullTriangle}{completed run-off triangle (the lower-right triangle in \code{fullTriangle})}
-#' \item{inputTriangle}{the run-off triangle considered for the reserve estimation}
-#' \item{trueCompleted}{run-off triangle completed into a full square (if available at the output)---the upper-left part was used by the algoritm to estimate the reserve}
-#' \item{residuals}{a triangle with residuals (for \code{residuals = T}):  If the residuals are given in the upper-left triangle than backfitted (incremental) residuals are provided 
-#' and if the residuals are given in the lower-right triangle, standard (incremental) residuals are provided}
+#' \item{fullTriangle}{completed run-off triangle (the upper-left triangular part 
+#' is identical with the input triangle in \code{chainLadder} and the lower-right 
+#' trianglular part is completed by the MACRAME algorithm}
+#' \item{inputTriangle}{the input run-off triangle provided in \code{chainLadder}}
+#' \item{trueCompleted}{true completed triangle (if available) where the upper-left 
+#' part is used by the MACRAME algorithm to estimate the reserve and the lower-right 
+#' part is provided for some evaluation purposes. If the full triangle is not 
+#' available \code{NA} is returned instead}
+#' \item{residuals}{a triangle with the corresponding residuals (for 
+#' \code{residuals = TRUE}). The residuals are either provided in the upper-left 
+#' triangle (so-called back-fitted incremental residuals if true completed triangle 
+#' is not available) or the residuals are given in the lower-right triangle (i,e., 
+#' standard incremental residuals---if the true completed triangle is given)}
 #' 
 #' @seealso [incrExplor()], [permuteReserve()]
 #' 
 #' @examples
 #' ## run-off (upper-left) triangle with NA values
 #' \donttest{
+#' data(MW2014, package = "raw")
 #' print(MW2014) 
 #' 
-#' ## MACRAME prediction (DEFAULT) with explicit Markov chain setting in the output
-#' data(MW2014)
+#' ## MACRAME prediction  with (DEFAULT) Markov chain setting 
+#' ## provided in the output
 #' mcReserve(MW2014, residuals = T, MC = TRUE)
 #' }
 #' 
@@ -56,31 +96,38 @@
 #' mcReserve(CameronMutual, residuals = TRUE)
 #' 
 #' ## the same output in terms of the reserve estimate but back-fitted residuals 
-#' ## are provided instead (as the observed run-off triangle only is provided)
+#' ## are provided instead (as the run-off triangle is provided only)
 #' data(observed(CameronMutual))
 #' mcReserve(observed(CameronMutual), residuals = TRUE)
 #' 
-#' @references Maciak, M., Mizera, I., and Pešta, M. (2022). Functional Profile Techniques for Claims Reserving. ASTIN Bulletin, 52(2), 449-482. DOI:10.1017/asb.2022.4
+#' @references Maciak, M., Mizera, I., and Pešta, M. (2022). Functional Profile 
+#' Techniques for Claims Reserving. ASTIN Bulletin, 52(2), 449-482. DOI:10.1017/asb.2022.4
 #' 
 #' 
 #' @export
-mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL, breaks = NULL, MC = FALSE){
+mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL, 
+                                   breaks = NULL, MC = FALSE){
   ### input data checks
-  if (!any(class(chainLadder) %in% c("triangle", "matrix"))){stop("The input data must be of class 'triangle' or 'matrix'.")}
-  if (dim(chainLadder)[1] != dim(chainLadder)[2]){stop("The input data do not form a run-off triangle (square matrix).")}
+  if (!any(class(chainLadder) %in% c("triangle", "matrix"))){
+    stop("The input data must be of class 'triangle' or 'matrix'.")}
+  if (dim(chainLadder)[1] != dim(chainLadder)[2]){
+    stop("The input data do not form a run-off triangle (square matrix).")}
   
   n <- nrow(chainLadder) ### number of occurrence/development years
   last <- n * (1:n) - 0:(n - 1) ### last diagonal
-  observed <- outer(1:n, 1:n, function(i, j) j <= (n + 1 - i)) ### observed/unobserved layout
+  observed <- outer(1:n, 1:n, function(i, j) j <= (n + 1 - i)) ### NA layout
   statesSelect <- states
   breaksSelect <- breaks
   
-  if (!is.numeric(chainLadder[observed])){stop("The input values are not numeric.")}
-  if (sum(is.na(chainLadder[observed])) > 0){stop("The run-off triangle is not fully observed (missing values).")}
+  if (!is.numeric(chainLadder[observed])){
+    stop("The input values are not numeric.")}
+  if (sum(is.na(chainLadder[observed])) > 0){
+    stop("The run-off triangle is not fully observed (missing values).")}
   
   ### cumulative vs. incremental triangle 
   if (cum == T){
-    if (sum(chainLadder[last]) < sum(chainLadder[,1])){warning("The run-off triangle seems to be not of the cumultative type!")}
+    if (sum(chainLadder[last]) < sum(chainLadder[,1])){
+      warning("The run-off triangle seems to be not of the cumultative type!")}
     incrTriangle <- ChainLadder::cum2incr(chainLadder)
   } else {
     incrTriangle <- chainLadder
@@ -95,30 +142,49 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
   incrs <- sort(incrTriangle[,-1])
   uniqueIncr <- unique(incrs)
   
-  if (is.null(states) & is.null(breaks)){### 1 DEFAULT choice of the states and breaks (as in Maciak, Mizera, and Pesta (2022)) 
+  if (is.null(states) & is.null(breaks)){### 1 DEFAULT (Maciak, Mizera, and Pesta 2022) 
     setup <- 1 
   } else {
-    if (is.numeric(states) & length(states) == 1){### 2. number of states is provided (ignores the breaks parameter)
-      if (round(states, 0) != states){stop("Integer value for the number of states must be provided")}
-      if (states > length(uniqueIncr)/4){stop(paste("The number of provided states is too high. Maximum allowed number of states is ", floor(length(uniqueIncr)/4),".", sep= ""))}
+    if (is.numeric(states) & length(states) == 1){### 2. states provided (breaks ignored)
+      if (round(states, 0) != states){
+        stop("Integer value for the number of states must be provided")}
+      if (states > length(uniqueIncr)/4){
+        stop(paste("The number of provided states is too high. ",
+                   "Maximum allowed number of states is ", 
+                   floor(length(uniqueIncr)/4),".", sep= ""))}
       setup <- 2 
     } else {### vector of states is provided or NULL AND breaks are provided or NULL 
-      if (is.numeric(states) & length(states) > 1 & is.null(breaks)){### 3. explicit set (numeric vector) of states is provided (breaks is NULL)
-        if (length(states) != length(unique(states))){stop("The numeric vector of states must provide a set of unique states")} 
-        if (length(states) > length(uniqueIncr)/4){stop(paste("The number of provided states is too high. Maximum allowed number of states is ", floor(length(uniqueIncr)/4),".", sep= ""))}
-        if (min(states) <= min(uniqueIncr) | max(states) > max(uniqueIncr)){stop(paste("The set of states is out of bounds. Minimum observed incremenet is  ", min(uniqueIncr)," and maximum observed increment is ", max(uniqueIncr),".", sep= ""))}
+      if (is.numeric(states) & length(states) > 1 & is.null(breaks)){
+        ### 3. explicit states (breaks is NULL)
+        if (length(states) != length(unique(states))){
+          stop("The numeric vector of states must provide a set of unique states")} 
+        if (length(states) > length(uniqueIncr)/4){
+          stop(paste("The number of provided states is too high. ",
+                     "Maximum allowed number of states is ", 
+                     floor(length(uniqueIncr)/4),".", sep= ""))}
+        if (min(states) <= min(uniqueIncr) | max(states) > max(uniqueIncr)){
+          stop(paste("The set of states is out of bounds. ",
+                     "Minimum observed incremenet is  ", 
+                     min(uniqueIncr)," and maximum observed increment is ", 
+                     max(uniqueIncr),".", sep= ""))}
         setup <- 3
       } else {### states explicit or NULL and explicit breaks  
-        if ((class(breaks) != "numeric") | length(breaks) == 1){stop("Parameter 'breaks' should provide a numeric vector of valid (unique) breaks.")}
+        if ((class(breaks) != "numeric") | length(breaks) == 1){
+          stop("Parameter 'breaks' should provide a numeric vector of valid (unique) breaks")}
         if (breaks[1] != -Inf){breaks <- c(-Inf, breaks)}
         if (breaks[length(breaks)] != Inf){breaks <- c(breaks, Inf)}
         if (is.null(states)){### 4. states are NULL & breaks are provided
-          if (length(unique(breaks)) != length(breaks)){stop("The vector of breaks must provide a unique set of breaks")}
-          if (any(diff(breaks) < 0)){stop("The vector of breaks must provide a monotone (increasing) sequence points.")}
+          if (length(unique(breaks)) != length(breaks)){
+            stop("The vector of breaks must provide a unique set of breaks")}
+          if (any(diff(breaks) < 0)){
+            stop("The vector of breaks must provide a monotone (increasing) sequence")}
           setup <- 4
         } else {### 5. states and break are explicit numeric vectors
-          if ((length(breaks) - 1) != length(states)){stop("The number of breaks and the number of states do not correspond ('length(states)' should be equal 'length(breaks) + 1')")}
-          if (sum(table(cut(states, breaks, right = F)) != 0) != length(states)){stop("The vector of states should represent intervals given by the 'breaks' parameter.")}
+          if ((length(breaks) - 1) != length(states)){
+            stop(paste("The number of breaks and the number of states do not correspond ",
+                 "('length(states)' should be equal 'length(breaks) + 1')", sep = ""))}
+          if (sum(table(cut(states, breaks, right = F)) != 0) != length(states)){
+            stop("The vector of states should represent intervals given by the 'breaks' parameter.")}
           setup <- 5
         }
       }
@@ -140,7 +206,10 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
   yGrid <- unique(yGrid)
   
   ### states
-  if (setup %in% c(1,2,4)){states <- sapply(1:(length(yGrid) - 1), function(k){stats::median(incrTriangle1C[incrTriangle1C >= yGrid[k] & incrTriangle1C < yGrid[k + 1]], na.rm = TRUE)})} 
+  if (setup %in% c(1,2,4)){
+    states <- sapply(1:(length(yGrid) - 1), function(k){
+      stats::median(incrTriangle1C[incrTriangle1C >= yGrid[k] & incrTriangle1C < yGrid[k + 1]], 
+                    na.rm = TRUE)})} 
   
   yGrid <- yGrid[c(!is.na(states), T)]
   states <- states[!is.na(states)]
@@ -166,7 +235,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
   P[statesStd == 0,] <- rep(0, length(statesStd))
   P[statesStd == 0, statesStd == 0] <- 1
   
-  ### matrix perturbation
+  ### matrix perturbation / zero state excitation
   if (sum(P[, statesStd == 0] != 0) == length(statesStd)){
     P2 <- matrix(rep(0, length(statesStd)^2), nrow = length(statesStd))
     P2[,statesStd == 0] <- rep(1, length(statesStd))
@@ -222,7 +291,8 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
   ### backfitting for residuals
   if (residuals == TRUE){
     if (all(is.na(chainLadder[!observed(n)]))){### backfitted residuals
-      if (is.null(breaksSelect) & is.null(statesSelect)){### only obtained for DETAULT setting (states and breaks are NULL)
+      if (is.null(breaksSelect) & is.null(statesSelect)){
+        ### only obtained for DETAULT setting (states and breaks are NULL)
         ### flipped triangle
         resids <- matrix(rev(as.vector(completed)), nrow = n, byrow = F)
         
@@ -242,7 +312,10 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
         
         ### states for the incremental triangle without first column
         incrTriangle1C <- incrTriangle[, -1]
-        states2 <- sapply(1:(length(yGrid2) - 1), function(k){stats::median(incrTriangle1C[incrTriangle1C >= yGrid2[k] & incrTriangle1C < yGrid2[k + 1]], na.rm = TRUE)})
+        states2 <- sapply(1:(length(yGrid2) - 1), 
+                          function(k){stats::median(incrTriangle1C[incrTriangle1C >= yGrid2[k] 
+                                                                   & incrTriangle1C < yGrid2[k + 1]], 
+                                                    na.rm = TRUE)})
         
         yGrid2 <- yGrid2[c(!is.na(states2), T)]
         states2 <- states2[!is.na(states2)]
@@ -310,8 +383,11 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
   }
   
   ### OUTPUT section
-  reserveOutput <- c(sum(chainLadder[last]), sum(completed[,n]), sum(completed[,n]) - sum(completed[last]), sum(chainLadder[,n]) - sum(chainLadder[last]))
-  names(reserveOutput) <- c("Paid Amount", "   Estimated Ultimate", "   Estimated Reserve", "   True Reserve")
+  reserveOutput <- c(sum(chainLadder[last]), sum(completed[,n]), 
+                     sum(completed[,n]) - sum(completed[last]), 
+                     sum(chainLadder[,n]) - sum(chainLadder[last]))
+  names(reserveOutput) <- c("Paid Amount", "   Estimated Ultimate", 
+                            "   Estimated Reserve", "   True Reserve")
   
   inputTriangle <- chainLadder
   inputTriangle[!observed] <- NA
@@ -319,9 +395,13 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
   output <- list()
   output$reserve <- reserveOutput
   output$method <- "MACRAME method (functional profile completion)"
-  output$completedProfiles <- ChainLadder::as.triangle(completed)
+  output$completed <- ChainLadder::as.triangle(completed)
   output$inputTriangle <- ChainLadder::as.triangle(inputTriangle)
-  output$trueComplete <-  ChainLadder::as.triangle(chainLadder)
+  if (all(is.na(chainLadder[!observed(n)]))){
+    output$trueComplete <- NA
+  } else {
+    output$trueComplete <-  ChainLadder::as.triangle(chainLadder)
+  }
   if (residuals == TRUE){output$residuals <- resids} else {output$residuals <- NULL}
   if (MC == TRUE){output$MarkovChain <- MarkovChain} else {output$MarkovChain <- NULL}
   
