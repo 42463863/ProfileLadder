@@ -9,7 +9,7 @@
 #' @return an object of the class \code{profileLadder} which is a list with the 
 #' following elements: 
 #' \item{reserve}{basic summary of the run-off triangle and the true/estimated
-#' reserve (if it is available otherwise code{NA} values are provided instead)}
+#' reserve (if it is available otherwise \code{NA} values are provided instead)}
 #' \item{method}{type of the printed triangle (either a run-off triangle itself 
 #' if no estimation method is applied or the completed triangle where the missing 
 #' fragments are imputed by one of the algorithm, PARALLAX, REACT, or MACRAME)}
@@ -54,32 +54,20 @@ as.profileLadder <- function(x){
     } else {
       output$method <- "Run-off triangle" 
     }
-    print(output$reserve)
-    message(output$method)
     
     output$completed <- NA
     output$inputTriangle <- ChainLadder::as.triangle(observed(x))
     if (all(is.na(x[!observed(n)]))){### incomplete run-off triangle
       output$trueComplete <- NA
-      print(output$inputTriangle)
     } else {### true completed triangle
       output$trueComplete <- ChainLadder::as.triangle(x)
-      print(output$trueComplete)
     }
     output$residuals <- NULL 
     
     class(output) <- c('list', 'profileLadder')
-    return(invisible(output))
+    return(output)
   } else {
     if (all(class(x) != "profileLadder")){stop("The object 'x' is not compatible with the 'profileLadder' class")}
-    print(x$reserve)
-    print(x$method)
-    if (is.na(x$completed)){
-      if (all(is.na(x$trueComplete))){
-        print(x$inputTriangle)
-      } else {print(x$trueComplete)}
-    } else {print(x$completed)}
-  
-    return(invisible(x))
+   return(x)
   }
 }

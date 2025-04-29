@@ -1,25 +1,21 @@
 Package: ProfileLadder
 Type: Package
 Title: Functional Profile Chain Ladder for Claims Reserving
-Version: 0.0.2
+Version: 0.1.1
 Authors@R: c( 
-    person("Matus", "Maciak", email = "maciak@karlin.mff.cuni.cz", role = c("aut", "cre")), 
-    person("Rastislav", "Matus", role = c("ctb")), 
-    person("Ivan", "Mizera", role = c("aut")),
-    person("Michal", "Pesta", role = c("aut")))
-Description: Functional claims reserving methods based on aggregated chain-ladder data, also known as the run-off triangle (functional) development profiles, implemented in three nonparametric algorithms (PARALLAX, REACT, and MACRAME) proposed in Maciak, Mizera, and Pešta (2022). 
-Depends: R (>= 4.0.1)
+    person(given = "Matúš", family = "Maciak", email = "maciak@karlin.mff.cuni.cz", role = c("aut", "cre")), 
+    person(given = "Rastislav", family = "Matúš", role = c("ctb")), 
+    person(given = "Ivan", family = "Mizera", role = c("aut")),
+    person(given = "Michal", family = "Pešta", role = c("aut")))
+Description: Functional claims reserving methods based on aggregated chain-ladder data, also known as the run-off triangle (functional) development profiles, implemented in three nonparametric algorithms (PARALLAX, REACT, and MACRAME) proposed in Maciak, Mizera, and Pešta (2022) <doi:10.1017/asb.2022.4>. 
+Depends: R (>= 4.0.0)
 License: GPL (>=2)
 Encoding: UTF-8
-Imports: ChainLadder (>= 0.2.12), raw
+Imports: ChainLadder (>= 0.2.12), raw (>= 0.1.8)
 LazyData: true
-Data: CameronMutual.rda, covid19CZ.rda, GFCIB.rda, MidwestMutual.rda, NevadaGeneral.rda, xNetSubscribe.rda
-Suggests: knitr
-VignetteBuilder: knitr
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 NeedsCompilation: yes
 Packaged: 2024-11-26 15:44:01 UTC; root
-Author: Matúš Maciak, Rastislav Matúš, Ivan Mizera, and Michal Pešta
 Maintainer: Matúš Maciak <maciak@karlin.mff.cuni.cz>

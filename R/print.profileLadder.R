@@ -8,9 +8,8 @@
 #' \code{as.profileLadder()}
 #' @param ... further arguments passed to \code{print}
 #' 
-#' @return an object of the class \code{profileLadder} -- a list with 
-#' the following elements: 
-#' \item{method}{}
+#' @return displays information resulting from a call of the \code{parallelReserve()} 
+#' function or the \code{mcReserve} function
 #' 
 #' @seealso [as.profileLadder()], [parallelReserve()], [mcReserve()]
 #' 
@@ -19,8 +18,8 @@
 #' x <- as.profileLadder(CameronMutual)
 #' print(x) 
 #' 
-#' @rdname print.profileLadder
 #' @export
+#' @method print profileLadder
 print.profileLadder <- function(x, ...){
   print(x$reserve)
   message(x$method)

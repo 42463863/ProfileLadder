@@ -9,8 +9,8 @@
 #' The data are structured in the the list object \code{GCCIB} with four 
 #' elements---one for each line of business: \code{\$bodilyInjury}, 
 #' \code{\$materialDamage}, \code{\$provisions}, and \code{\$annuity}. 
-#' The run-off triangles are all aggregated over the period from the first quarter
-#' of 2008 (\code{Q1}) till the last quarter of 2022 (\code{Q4}). 
+#' The run-off triangles are all aggregated over the period from the first quartal
+#' of 2008 (\code{Q1}) till the last quartal of 2022 (\code{Q4}). 
 #' 
 #' 
 #' @name GFCIB
@@ -27,7 +27,7 @@
 #'   \item{origin}{matrix rows with the occurrence quartal (origin)}
 #'   \item{dev}{matrix columns with the development period (development)}
 #' }
-#' @source The Czech Insurers’ Bureau \url{https://www.ckp.cz/en/about} 
+#' @source The Czech Insurers’ Bureau \url{https://www.ckp.cz} 
 NULL
 
 

@@ -15,27 +15,39 @@
 #' bootstrapped distribution (the DEFAULT choice \code{quantile = 0.995} is 
 #' explicitly required  by the Solvency II principle used by actuaries in practice)  
 #' 
-#' @returns An object of the class \code{list} with with the following elements: 
-#' \item{method}{brief summary of the permutation bootstrap method}
-#' \item{estimatedReserve}{numeric vector with four values summarizing the estimated 
-#' reserve: Total paid amount (i.e., the sum of the last observed diagonal in 
-#' a cumulative run-off triangle); Total estimated amount (i.e., the sum of the 
+#' @returns An object of the class \code{permutedReserve} which is a list with  
+#' the following elements: 
+#' \item{eSummary}{numeric vector with four values summarizing the estimated 
+#' reserve: Paid amount (i.e., the sum of the last observed diagonal in the given  
+#' cumulative run-off triangle); Estimated ultimate (i.e., the sum of the 
 #' last column in the completed cumulative triangle); Estimated reserve (i.e., the 
 #' sum of the last column in the completed cumulative triangle minus the sum of 
 #' the last observed diagonal); True reserve if a completed (true) run-off triangle 
 #' is available}
-#' \item{pSummary}{numeric vector with four  values summarizing the overall reserve 
-#' distribution: Average of \code{B} permutation bootstrap reserves; Standard error 
-#' of \code{B} permutation bootstrap reserves; numeric value \code{BootCov\%} given 
-#' as a percentage proportion between the standard error and the average; 
-#' \code{BootVar.995} providing the estimated 0.995 quantile of the boostrap reserve
-#' distribution (for \code{quantile = 0.995}) given relatively with respect to the 
-#' permutation bootstrap mean reserve}
-#' \item{pReserves}{a numeric vector of the length \code{B} with estimated (permuted) 
-#' reserves for each row-permuted run-off triangle in \code{B} Monte Carlo runs}
-#' \item{time}{a numeric vector summarizing the bootstrap compuational efficiency: 
-#' the number of permutations (\code{B}), the input run-off triangle dimension 
-#' (\code{n}) and the computation time needed for the permutation bootstrap calculations}
+#' \item{pSummary}{numeric vector with four values summarizing the overall reserve 
+#' distribution: \code{Boot.Mean} gives the verage of \code{B} permutation bootstrap 
+#' reserves; \code{Std.Er.} provides the corresponding standard error of \code{B} 
+#' permutation bootstrap reserves; The value of \code{BootCov\%} stands for  
+#' a percentage proportion between the standard error and the average; 
+#' Finally, \code{BootVar.995} provides the estimated 0.995 quantile (by DEFAULT)
+#' of the boostrap reserve distribution (for \code{quantile = 0.995} and, otherwise, 
+#' it is modified acordingly) given relatively with respect to the permutation 
+#' bootstrapped mean reserve}
+#' \item{pReserves}{a numeric vector of the length \code{B} with the estimated 
+#' (permuted) reserves for each row-permuted run-off triangle in \code{B} 
+#' independent Monte Carlo simulation runs}
+#' \item{pUltimates}{A matrix of the dimensions \code{B x n} (where \code{n} 
+#' stands for the number of the origin/development periods) with \code{B} simulated 
+#' ultimate payments -- the last column in the completed run-off triangle}
+#' \item{pLatest}{A matrix of the dimensions \code{B x n} (where \code{n} again
+#' stands for the number of the origin/development periods) with \code{B} simulated 
+#' diagonals}
+#' \item{trueComplete}{The true complete run-off triangle (if available) and \code{NA}
+#' value otherwise}
+#' \item{info}{a numeric vector summarizing the bootstrap compuational efficiency: 
+#' In particular, the OS/Architecture type, the number of permutations (\code{B}), 
+#' the input run-off triangle dimension (\code{n}) and the computation time needed
+#' for the permutation bootstrap calculations}
 #' 
 #' @seealso [parallelReserve()], [mcReserve()], [plot.permutedReserve()]
 #' 
@@ -43,11 +55,11 @@
 #' ## REACT algorithm and the permutation bootstrap reserve 
 #' data(CameronMutual)
 #' output <- parallelReserve(CameronMutual, method = "react")
-#' permuteReserve(output)
+#' permuteReserve(output, B = 100)
 #' 
 #' ## MACRAME algorithm with a pre-specified number of states 
 #' output <- mcReserve(CameronMutual, states = 5)
-#' permuteReserve(output)
+#' permuteReserve(output, B = 100)
 #' 
 #' 
 #' @references Maciak, M., Mizera, I., and Pešta, M. (2022). Functional Profile 
@@ -56,7 +68,7 @@
 #' the European Parliament and of the Council of 25 November 2009 on the taking-up 
 #' and pursuit of the business of Insurance and Reinsurance (Solvency II). Official 
 #' Journal of the European Union, 1–155.\cr
-#' \url{http://data.europa.eu/eli/dir/2009/138/oj}
+#' \url{https://data.europa.eu/eli/dir/2009/138/oj}
 #' 
 #' @export
 permuteReserve <- function(object, B = 500, std = TRUE, quantile = 0.995){
@@ -82,6 +94,7 @@ permuteReserve <- function(object, B = 500, std = TRUE, quantile = 0.995){
   method <- unlist(strsplit(object$method, split = " "))[1]
   completed <- object$completed
   inputTriangle <- object$inputTriangle
+  trueComplete <- object$trueComplete
   
   if (method == "MACRAME"){
     if (!is.null(object$MarkovChain)){
@@ -106,9 +119,9 @@ permuteReserve <- function(object, B = 500, std = TRUE, quantile = 0.995){
                                        firstPositive[firstPositive != 0]
   }
   
-  
-    permute <- function(matrix, method = NULL){
-    pMatrix <- matrix[sample(1:n, n, replace = F), ]
+  ### auxiliary permutation function
+  permute <- function(matrix, method = NULL){
+    pMatrix <- matrix[sample(1:n, n, replace = FALSE), ]
     zeroRows <- apply(pMatrix, 1, function(row){return(all(row == 0))})
     pMatrix[!observed] <- NA
     
@@ -118,19 +131,30 @@ permuteReserve <- function(object, B = 500, std = TRUE, quantile = 0.995){
     }
     
     ### applying PARALLAX, REACT, MACRAME
-    if (method == "PARALLAX"){return(parallelReserve(pMatrix, method = "parallax")$reserve[3])}
-    if (method == "REACT"){return(parallelReserve(pMatrix, method = "react")$reserve[3])}
+    if (method == "PARALLAX"){out <- parallelReserve(pMatrix, method = "parallax")$completed}
+    if (method == "REACT"){out <- parallelReserve(pMatrix, method = "react")$completed}
     if (method == "MACRAME"){
-      if (is.null(states) & is.null(breaks)){return(mcReserve(pMatrix)$reserve[3])} else {
-        return(mcReserve(pMatrix, states = states, breaks = breaks)$reserve[3])
-      }
+      if (is.null(states) & is.null(breaks)){out <- mcReserve(pMatrix)$completed} 
+        else {out <- mcReserve(pMatrix, states = states, breaks = breaks)$completed}
     }  
+    return(c(out[,n], rev(out[last]), rev(ChainLadder::cum2incr(out)[last])))
   }
-    
+  
+  ### permutation bootstrap with time efficiency  
   startTime <- Sys.time()
   pReserve <- replicate(B, permute(completed, method))
   endTime <- Sys.time() - startTime
     
+  ### bootstrapped ultimates
+  ultimates <- data.frame(t(pReserve[1:n,]))
+  names(ultimates) <- paste("origin", 1:n, sep = " ")
+  
+  ### bootstrapped latest
+  latest <- data.frame(t(pReserve[(2 * n + 1):(3 * n),]))
+  names(latest) <- paste("origin", 1:n, sep = " ")
+  
+  ### bootstrapped reserves
+  reserves <- apply(pReserve[1:n,],2, sum) - apply(pReserve[(n + 1):(2 * n), ], 2, sum)
     
     
 
@@ -141,35 +165,40 @@ permuteReserve <- function(object, B = 500, std = TRUE, quantile = 0.995){
   names(estimatedReserve) <- c("Paid Amount", "   Estimated Ultimate", 
                                "   Estimated Reserve", "   True Reserve")
   
-  BootCoV <- 100 * stats::sd(pReserve)/mean(pReserve)
-  BootVar995 <- stats::quantile(pReserve, quantile)/mean(pReserve)
+  BootCoV <- 100 * stats::sd(reserves)/mean(reserves)
+  BootVar995 <- stats::quantile(reserves, quantile)/mean(reserves)
   
-  pSummary <- c(mean(pReserve), stats::sd(pReserve), BootCoV, BootVar995)
+  pSummary <- c(mean(reserves), stats::sd(reserves), BootCoV, BootVar995)
   userQ <- strsplit(as.character(format(quantile, nsmall = 3)), "\\.")[[1]][2]
   names(pSummary) <- c("Boot.Mean", "   Std.Er.", "   BootCov%", 
                        paste("   BootVar.", userQ, sep = ""))
   
  
   output <- list()
-  output$estimatedReserve <- estimatedReserve  ## PARALLAX/REACT/MACRAME
+  output$eSummary <- estimatedReserve  ## PARALLAX/REACT/MACRAME
   output$pSummary <- pSummary
   
   output$method <- paste("Permutation bootstrap (", method, " method)", sep = "")
-  output$pReserves <- as.numeric(pReserve)
+  
+  output$pReserves <- as.numeric(reserves)
+  output$pUltimates <- ultimates
+  output$pLatest <- latest
+  
+  if (all(!is.na(trueComplete))){
+    output$tUltimate <- trueComplete[,n]
+  } else {
+    output$tUltimate <- NA
+  }
+  output$tLatest <- rev(ChainLadder::cum2incr(inputTriangle)[last])
 
+  output$trueComplete <- trueComplete
   
-  time <- c(paste("B = ", round(B,0), sep = ""), paste("n = ", n, sep = ""), 
+  time <- c(Sys.info()["sysname"], Sys.info()["machine"], paste("B = ", round(B,0), sep = ""), paste("n = ", n, sep = ""), 
             paste(round(endTime, 2), " sec.", sep = ""))
-  names(time) <- c("Permutation number", "   Triangle dimension", "   Run time")
-  output$time <- time
-  
-  message(paste(method, " based reserving", sep = ""))
-  print(round(estimatedReserve, 3))
-  
-  message(paste("Permutation bootstrap (B = ", B, ")", sep = ""))
-  print(round(pSummary, 3))
+  names(time) <- c("OS System", "Architecture", "Permutation number", "   Triangle dimension", "   Run time")
+  output$info <- time
   
   class(output) <- c('list', 'permutedReserve')
-  return(invisible(output))
+  return(output)
 } ### end of permuteReserve() function
 

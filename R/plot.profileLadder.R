@@ -36,8 +36,8 @@
 #' 
 #'
 #' 
-#' @rdname plot.profileLadder
 #' @export
+#' @method plot profileLadder
 plot.profileLadder <- function(x, xlab = "Development Year", 
                                   ylab = "Cumulative Claims", main = "", ...){
   
@@ -56,15 +56,15 @@ plot.profileLadder <- function(x, xlab = "Development Year",
     observedLadder <- chainLadder
     completedLadder[observed] <- NA 
     completedLadder[last] <- chainLadder[last]
-    estimatedLadder <- T
-  } else {estimatedLadder <- F}
+    estimatedLadder <- TRUE
+  } else {estimatedLadder <- FALSE}
 
   if (all(is.na(fullLadder))){### true/full chain-ladder not available
-    completed <- F
-  } else {completed <- T}
+    completed <- FALSE
+  } else {completed <- TRUE}
   
-  maxMargin <- max(chainLadder, na.rm = T)
-  minMargin <- min(chainLadder, na.rm = T)
+  maxMargin <- max(chainLadder, na.rm = TRUE)
+  minMargin <- min(chainLadder, na.rm = TRUE)
   
   xMargin <- 1 - n/100
   yMargin <- maxMargin + (maxMargin - minMargin)/100
@@ -72,7 +72,7 @@ plot.profileLadder <- function(x, xlab = "Development Year",
   layout1 <- t(matrix(rep(1:n, 2), ncol = 2))
   layout2 <- rbind(rep(minMargin, n), rep(maxMargin, n))
   
-  if (completed == T){
+  if (completed == TRUE){
     graphics::matplot(1:ncol(fullLadder), t(fullLadder), type = 'l', 
                       xlab = xlab, ylab = ylab, main = main, 
                       col = "darkblue", lty = 3, lwd = 1.5, ...)
@@ -84,7 +84,7 @@ plot.profileLadder <- function(x, xlab = "Development Year",
     
     graphics::matlines(layout1, layout2, lty = 3, col = "black")
     
-    if (estimatedLadder == T){
+    if (estimatedLadder == TRUE){
       graphics::matlines(1:ncol(completedLadder), t(completedLadder), col = "red", lwd = 1, lty = 1)
       graphics::points(rep(n,n), completedLadder[1:n,n], pch =21, bg = "darkred", cex = 1)
       
@@ -112,7 +112,7 @@ plot.profileLadder <- function(x, xlab = "Development Year",
     
     graphics::matlines(layout1, layout2, lty = 3, col = "black")
     
-    if (estimatedLadder == T){
+    if (estimatedLadder == TRUE){
       graphics::matlines(1:ncol(completedLadder), t(completedLadder), col = "red", lwd = 1, lty = 1)
       graphics::points(rep(n,n), completedLadder[1:n,n], pch =21, bg = "darkred", cex = 1)
       

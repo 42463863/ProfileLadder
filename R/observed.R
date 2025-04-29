@@ -36,7 +36,7 @@
 #' observed(CameronMutual, cum = FALSE)
 #' 
 #' @export
-observed <- function(object, cum = T){
+observed <- function(object, cum = TRUE){
   if (is.numeric(object) & length(object) == 1){### 
     if (object <= 0 | round(object, 0) != object){
       stop("Incorrect input value of 'object' provided")}
@@ -56,7 +56,7 @@ observed <- function(object, cum = T){
         stop("The dimensions of the imput object do not correspond.")}
       if (cum != TRUE & cum != FALSE){
         stop("Parameter 'cum' must be logical (TRUE/FALSE)")}
-      if (cum == T){### return cumulative triangle
+      if (cum == TRUE){### return cumulative triangle
         if (sum(object[,1]) > sum(object[row(object) + col(object) == nrow(object) + 1])){
           ### object is incremental triangle
           object <- ChainLadder::incr2cum(object)
@@ -68,7 +68,7 @@ observed <- function(object, cum = T){
           return(object)
         }
       }
-      if (cum == F){### return incremental triangle
+      if (cum == FALSE){### return incremental triangle
         if (sum(object[,1]) > sum(object[row(object) + col(object) == nrow(object) + 1])){
           ### object is incremental triangle
           object[row(object) + col(object) > nrow(object) + 1] <- NA

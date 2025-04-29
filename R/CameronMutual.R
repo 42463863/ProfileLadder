@@ -30,12 +30,12 @@
 #'   \item{origin}{matrix rows with the occurrence year (origin)}
 #'   \item{dev}{matrix columns with the development period (development)}
 #' }
-#' @source \url{https://www.casact.org/research/reserve_data/ppauto_pos.csv}
-#' (NAIC group code: 5320)
+#' @source \url{https://www.casact.org/publications-research/research/research-resources}\cr
+#' (PP Auto Data Set, NAIC group code: 5320)
 #' 
 #' @references Meyers, G. G. and P. Shi (2011). Loss reserving data pulled 
 #' from NAIC Schedule P. Available from 
-#' \url{http://www.casact.org/research/index.cfm?fa=loss_reserves_data}
+#' \url{https://www.casact.org/publications-research/research/research-resources}
 #' @references Maciak, M., Mizera, I., and Pešta, M. (2022). Functional Profile 
 #' Techniques for Claims Reserving. ASTIN Bulletin, 52(2), 449-482. DOI:10.1017/asb.2022.4
 #' (Portfolio #1)

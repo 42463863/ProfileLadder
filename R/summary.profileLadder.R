@@ -59,8 +59,8 @@
 #' summary(mcReserve(observed(CameronMutual), residuals = TRUE), plotOption = TRUE)
 #' 
 #' 
-#' @rdname summary.profileLadder
 #' @export
+#' @method summary profileLadder
 summary.profileLadder <- function(object, plotOption = FALSE, ...){
 
   reserve <- object$reserve

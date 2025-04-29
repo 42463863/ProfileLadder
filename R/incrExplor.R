@@ -17,9 +17,6 @@
 #' summarize the run-off triangle increments within the given set of bins. Each 
 #' bin with the increments  is represented by a corresponding Markov state value 
 #' (obtained by the \code{method} choice with \code{median} being the DEFAULT option)
-#' @param plotOption logical to indicate whether a graphical output supplementing 
-#' the empirical exploratory should be provided (\code{TRUE}) 
-#' or not (\code{FALSE} -- DEFAULT) 
 #' @param out integer value (or a vector of integers) to indicate which columns 
 #' of the run-off triangle should be excluded 
 #' from the exploratory analysis of the increments. By DEFAULT, the first 
@@ -41,6 +38,11 @@
 #' (i.e., numeric vectors are provided for both) then the set of states in 
 #' \code{states} must be given in a way that exactly one state value belongs to 
 #' exactly one bin defined by the break points specified by \code{breaks}
+#' @param plotOption logical to indicate whether a graphical output supplementing 
+#' the empirical exploratory should be provided (\code{TRUE}) 
+#' or not (\code{FALSE} -- DEFAULT) 
+#' @param plotScale positive scaling factor for adjusting the overall graphical 
+#' output (the DEFAULT value is \code{plotScale = 1})
 #' 
 #' @returns A list with the following elements:
 #' \item{incrTriangle}{an object of the class \code{triangle} with the incremental 
@@ -95,8 +97,8 @@
 #' 
 #' @export
 incrExplor <- function(triangle, method = c("median", "mean", "max", "min"), 
-                                 plotOption = FALSE, out = 1, 
-                                 states = NULL, breaks = NULL){
+                                 out = 1, states = NULL, breaks = NULL, 
+                                 plotOption = FALSE, plotScale = 1){
   ### input data checks
   if (!any(class(triangle) %in% c("triangle", "matrix"))){
     stop("The input data must be of class 'triangle' or 'matrix'.")}
@@ -124,7 +126,7 @@ incrExplor <- function(triangle, method = c("median", "mean", "max", "min"),
 
   ### 1. DEFAULT analysis (as in Maciak, Mizera, and Pesta, 2022)
   ### maximum increment beside columns in out
-  maxIncr <- max(incrTriangle[,-1], na.rm = T)
+  maxIncr <- max(incrTriangle[,-1], na.rm = TRUE)
   
   ### all increments except the first column
   incrs <- sort(incrTriangle[,-1])
@@ -140,10 +142,10 @@ incrExplor <- function(triangle, method = c("median", "mean", "max", "min"),
   
   ### DEFAULT states (MMP2022)
   states2 <- sapply(1:(length(yGrid2) - 1), function(k){
-    stats::median(incrTriangle1C[incrTriangle1C >= yGrid2[k] & incrTriangle1C < yGrid2[k + 1]], na.rm = TRUE)})
+  stats::median(incrTriangle1C[incrTriangle1C >= yGrid2[k] & incrTriangle1C < yGrid2[k + 1]], na.rm = TRUE)})
   
   ### adjustment for no increments in the bin
-  defaultBreaks <- yGrid2[c(!is.na(states2), T)]
+  defaultBreaks <- yGrid2[c(!is.na(states2), TRUE)]
   defaultBreaks[1] <- -Inf
   defaultStates <- states2[!is.na(states2)]
   
@@ -157,7 +159,7 @@ incrExplor <- function(triangle, method = c("median", "mean", "max", "min"),
   if (all(out != 0)){## some columns are deleted
     ### maximum increment beside columns in out
     out <- out[out != 0]
-    maxIncrU <- max(incrTriangle[,-out], na.rm = T)
+    maxIncrU <- max(incrTriangle[,-out], na.rm = TRUE)
   
     ### all allowed increments
     incrsU <- sort(incrTriangle[,-out])
@@ -167,7 +169,7 @@ incrExplor <- function(triangle, method = c("median", "mean", "max", "min"),
     incrTriangle1CU <- incrTriangle[, -out]
   } else {### no columns are deleted
     ### maximum increment beside columns in out
-    maxIncrU <- max(incrTriangle, na.rm = T)
+    maxIncrU <- max(incrTriangle, na.rm = TRUE)
     
     ### all allowed increments
     incrsU <- sort(incrTriangle)
@@ -179,9 +181,9 @@ incrExplor <- function(triangle, method = c("median", "mean", "max", "min"),
   
   if (all(method == c("median", "mean", "max","min")) & 
           length(out) == 1 & out[1] == 1 & 
-          is.null(states) & is.null(breaks)){userInput <- F}
+          is.null(states) & is.null(breaks)){userInput <- FALSE}
   else {### USER defined modifications
-    userInput <- T
+    userInput <- TRUE
     if (is.null(states) & is.null(breaks)){### out is modified 
       setup <- 1 ### out != 1
     } else {
@@ -209,7 +211,7 @@ incrExplor <- function(triangle, method = c("median", "mean", "max", "min"),
                        max(uniqueIncrU),".", sep= ""))}
           setup <- 3 ### vector for states is provied, breaks is NULL 
         } else {### states explicit or NULL and explicit breaks  
-          if ((class(breaks) != "numeric") | length(breaks) == 1){
+          if (!is.numeric(breaks) || length(breaks) == 1){
             stop("Parameter 'breaks' should provide a numeric vector of valid (unique) breaks")}
           if (breaks[1] != -Inf){breaks <- c(-Inf, breaks)}
           if (breaks[length(breaks)] != Inf){breaks <- c(breaks, Inf)}
@@ -272,36 +274,42 @@ incrExplor <- function(triangle, method = c("median", "mean", "max", "min"),
     }
     
     ### optional adjustment (if no increments in the bin)
-    yGridU <- yGridU[c(!is.na(statesU), T)]
+    yGridU <- yGridU[c(!is.na(statesU), TRUE)]
     yGridU[1] <- -Inf
     statesU <- statesU[!is.na(statesU)]
   }
   
   ### plotting the results 
-  if (plotOption == T){
+  if (plotOption == TRUE){
     ### OS system specification
     sys_info <- Sys.info()
     if (sys_info["sysname"] == "Windows") {
-      grDevices::windows(width = 20, height = 15) ## windows() for Windows OS
-      scaleFac <- 0.65
+      #grDevices::windows(width = 20, height = 15) ## windows() for Windows OS
+      scaleFac <- 0.65 * plotScale
     } else if (sys_info["sysname"] == "Darwin") {
-      grDevices::quartz(width = 12, height = 8)   ## quartz() for macOS
-      scaleFac <- 0.75
+      #grDevices::quartz(width = 12, height = 8)   ## quartz() for macOS
+      scaleFac <- 0.75 * plotScale
     } else {
-      grDevices::x11(width = 15, height = 10)     ## x11() for Linux or other OS
-      scaleFac <- 1
+      #grDevices::x11(width = 15, height = 10)     ## x11() for Linux or other OS
+      scaleFac <- 0.68 * plotScale
     }
     
+    ###  graphical window setting and reset on exit
+    old_par <- graphics::par(no.readonly = TRUE)
+    on.exit(graphics::par(old_par))
+    ###
+    
+    graphics::par(mfrow = c(2,2), mar = c(5, 3, 5, 3), cex = scaleFac)
+    
     ### plot 1
-    graphics::par(mfrow = c(2,2))
-    graphics::hist(incrs, breaks = n, col = "lightblue", freq = F,
+    graphics::hist(incrs, breaks = n, col = "lightblue", freq = FALSE,
                    xlab = "Run-off triangle increments", 
                    main = "(I) Histogram: Incremental triangle[ , -1]", 
                    xlim = c(min(incrs), max(incrs)))
     graphics::lines(stats::density(incrs), col = "red", lwd = 2)
     
     ### plot 2
-    plot(0,0, pch = "", xaxt='n', yaxt='n', frame.plot = F, xlab = "", ylab = "", 
+    plot(0,0, pch = "", xaxt='n', yaxt='n', frame.plot = FALSE, xlab = "", ylab = "", 
               xlim = c(0,1), ylim = c(0,1), 
               main = "(II) Summary: Incremental triangle[,-1]")
     ### basic characteristics
@@ -363,8 +371,8 @@ incrExplor <- function(triangle, method = c("median", "mean", "max", "min"),
     }
       
     ### plot 3
-    plotLabels <- names(table(cut(incrs, breaks=defaultBreaks, right = F, dig.lab = 6)))
-    tableNum <- table(cut(incrs, breaks=defaultBreaks, right = F, dig.lab = 6))
+    plotLabels <- names(table(cut(incrs, breaks=defaultBreaks, right = FALSE, dig.lab = 6)))
+    tableNum <- table(cut(incrs, breaks=defaultBreaks, right = FALSE, dig.lab = 6))
     names(tableNum) <- 1:length(tableNum)
     defaultPlot <- graphics::barplot(tableNum, xaxt='n', 
                                      xlab = paste("Run-off triangle increments (", 
@@ -380,8 +388,8 @@ incrExplor <- function(triangle, method = c("median", "mean", "max", "min"),
     
     ### plot 4
     if (userInput == T){
-      plotLabelsU <- names(table(cut(incrsU, breaks=yGridU, right = F, dig.lab = 6)))
-      tableNumU <- table(cut(incrsU, breaks=yGridU, right = F, dig.lab = 6))
+      plotLabelsU <- names(table(cut(incrsU, breaks=yGridU, right = FALSE, dig.lab = 6)))
+      tableNumU <- table(cut(incrsU, breaks=yGridU, right = FALSE, dig.lab = 6))
       names(tableNumU) <- 1:length(tableNumU)
       
       userPlot <- graphics::barplot(tableNumU, xaxt='n', 
@@ -426,7 +434,7 @@ incrExplor <- function(triangle, method = c("median", "mean", "max", "min"),
   colnames(increments) <- c("Min", "1st Q.", "Median", "Mean", "3rd Q.", "Max", "Std.Er.", "Total")
   
   ## summary of user defined options for output
-  if (userInput == T){
+  if (userInput == TRUE){
     userDefined <- list()
     userDefined$increments <- incrsU
     userDefined$outColumns <- out

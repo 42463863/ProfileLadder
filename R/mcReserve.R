@@ -81,14 +81,13 @@
 #' 
 #' @examples
 #' ## run-off (upper-left) triangle with NA values
-#' \donttest{
-#' data(MW2014, package = "raw")
+#' if (requireNamespace("ChainLadder")) {
+#' data(MW2014, package = "ChainLadder")
 #' print(MW2014) 
 #' 
 #' ## MACRAME prediction  with (DEFAULT) Markov chain setting 
 #' ## provided in the output
-#' mcReserve(MW2014, residuals = T, MC = TRUE)
-#' }
+#' mcReserve(MW2014, residuals = TRUE, MC = TRUE)}
 #' 
 #' ## completed run-off triangle with 'unknown' truth (lower-bottom run-off triangle)  
 #' ## with incremental residuals (true increments minus predicted ones) being provided 
@@ -102,7 +101,6 @@
 #' 
 #' @references Maciak, M., Mizera, I., and Pešta, M. (2022). Functional Profile 
 #' Techniques for Claims Reserving. ASTIN Bulletin, 52(2), 449-482. DOI:10.1017/asb.2022.4
-#' 
 #' 
 #' @export
 mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL, 
@@ -125,7 +123,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
     stop("The run-off triangle is not fully observed (missing values).")}
   
   ### cumulative vs. incremental triangle 
-  if (cum == T){
+  if (cum == TRUE){
     if (sum(chainLadder[last]) < sum(chainLadder[,1])){
       warning("The run-off triangle seems to be not of the cumultative type!")}
     incrTriangle <- ChainLadder::cum2incr(chainLadder)
@@ -136,7 +134,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
   
   ### maximum (observed) increment (beside the first column)
   incrTriangle[!observed] <- NA
-  maxIncr <- max(incrTriangle[,-1], na.rm = T)
+  maxIncr <- max(incrTriangle[,-1], na.rm = TRUE)
   
   ### observed increments and unique increments in the triangle
   incrs <- sort(incrTriangle[,-1])
@@ -169,7 +167,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
                      max(uniqueIncr),".", sep= ""))}
         setup <- 3
       } else {### states explicit or NULL and explicit breaks  
-        if ((class(breaks) != "numeric") | length(breaks) == 1){
+        if (!is.numeric(breaks) || length(breaks) == 1){
           stop("Parameter 'breaks' should provide a numeric vector of valid (unique) breaks")}
         if (breaks[1] != -Inf){breaks <- c(-Inf, breaks)}
         if (breaks[length(breaks)] != Inf){breaks <- c(breaks, Inf)}
@@ -183,7 +181,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
           if ((length(breaks) - 1) != length(states)){
             stop(paste("The number of breaks and the number of states do not correspond ",
                  "('length(states)' should be equal 'length(breaks) + 1')", sep = ""))}
-          if (sum(table(cut(states, breaks, right = F)) != 0) != length(states)){
+          if (sum(table(cut(states, breaks, right = FALSE)) != 0) != length(states)){
             stop("The vector of states should represent intervals given by the 'breaks' parameter.")}
           setup <- 5
         }
@@ -211,7 +209,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
       stats::median(incrTriangle1C[incrTriangle1C >= yGrid[k] & incrTriangle1C < yGrid[k + 1]], 
                     na.rm = TRUE)})} 
   
-  yGrid <- yGrid[c(!is.na(states), T)]
+  yGrid <- yGrid[c(!is.na(states), TRUE)]
   states <- states[!is.na(states)]
   yGrid[1] <- -Inf
   
@@ -226,7 +224,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
   for (t in (1:(n - 2))){### time of transition
     v1 <- incrTriangle1Std[1:(n - t), t + (s - 1)] ### reweighted 
     v2 <- incrTriangle1Std[1:(n - t), t + 1 + (s - 1)]  ### reweighted
-    P <- P + table(cut(v1,breaks=yGridStd, right = F),cut(v2,breaks=yGridStd, right = F)) 
+    P <- P + table(cut(v1,breaks=yGridStd, right = FALSE),cut(v2,breaks=yGridStd, right = FALSE)) 
   }
   
   P <- matrix(sweep(P,1,rowSums(P),`/`), ncol = length(statesStd))
@@ -255,7 +253,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
   ### Markov Chain prediction
   inState <- function(x){
     eVec <- rep(0, length(states))
-    eVec[which(levels(cut(x, breaks=yGrid, right = F)) == cut(x, breaks=yGrid, right = F))] <- 1
+    eVec[which(levels(cut(x, breaks=yGrid, right = FALSE)) == cut(x, breaks=yGrid, right = FALSE))] <- 1
     return(eVec)
   }
   
@@ -331,7 +329,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
         for (t in (1:(n - 2))){### time of transition
           v1 <- incrTriangle1C[1:(n - t), t + (s - 1)] ### reweighted 
           v2 <- incrTriangle1C[1:(n - t), t + 1 + (s - 1)]  ### reweighted
-          P <- P + table(cut(v1,breaks=yGrid, right = F),cut(v2,breaks=yGrid, right = F)) 
+          P <- P + table(cut(v1,breaks=yGrid, right = FALSE),cut(v2,breaks=yGrid, right = FALSE)) 
         }
         
         P <- matrix(sweep(P,1,rowSums(P),`/`), ncol = length(states))
@@ -355,7 +353,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
         ### Markov Chain prediction
         inState <- function(x){
           eVec <- rep(0, length(states2))
-          eVec[which(levels(cut(x, breaks=yGrid2, right = F)) == cut(x, breaks=yGrid2, right = F))] <- 1
+          eVec[which(levels(cut(x, breaks=yGrid2, right = FALSE)) == cut(x, breaks=yGrid2, right = FALSE))] <- 1
           return(eVec)
         }
         
@@ -371,7 +369,7 @@ mcReserve <- function(chainLadder, cum = TRUE, residuals = FALSE, states = NULL,
         }
         
         resids <- ChainLadder::incr2cum(incrTriangle)
-        resids <- matrix(rev(as.vector(resids)), nrow = n, byrow = F)
+        resids <- matrix(rev(as.vector(resids)), nrow = n, byrow = FALSE)
         
         resids <- ChainLadder::cum2incr(completed) - ChainLadder::cum2incr(resids)
         resids[!observed] <- NA 

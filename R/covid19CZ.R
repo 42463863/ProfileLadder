@@ -24,7 +24,7 @@
 #' first case in the first cohort (first row) reported in March 1st)  
 #' 
 #' @source Institute of Health Information and Statistics of the Czech Republic 
-#' \url{https://uzis.cz/index-en.php}
+#' \url{https://www.uzis.cz:443/}
 NULL
 
 

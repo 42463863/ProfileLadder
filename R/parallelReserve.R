@@ -53,9 +53,10 @@
 #'  
 #' @examples
 #' ## run-off (upper-left) triangle with NA values (bottom-right part)
-#' \donttest{print(MW2014) 
-#' parallelReserve(MW2014, residuals = TRUE)
-#' }
+#' if (requireNamespace("ChainLadder")) {
+#' data(MW2014, package = "ChainLadder")
+#' print(MW2014) 
+#' parallelReserve(MW2014, residuals = TRUE)}
 #' 
 #' ## completed run-off triangle with 'unknown' truth (lower-bottom part)  
 #' ## for the estimation purposes only the upper-left triangle is used 
@@ -74,7 +75,7 @@
 #' Techniques for Claims Reserving. ASTIN Bulletin, 52(2), 449-482. DOI:10.1017/asb.2022.4
 #'
 #' @export
-parallelReserve <- function(chainLadder, method = "parallax", cum = T, residuals = F){
+parallelReserve <- function(chainLadder, method = "parallax", cum = TRUE, residuals = FALSE){
   ### input data checks
   if (method != "parallax" & method != "react"){
     stop("Not a correct prediction method = c('parallel', 'react') selected.")}
@@ -90,7 +91,7 @@ parallelReserve <- function(chainLadder, method = "parallax", cum = T, residuals
   
   if (!is.numeric(chainLadder[observed])){stop("The input values are not numeric.")}
   
-  if (cum == T){
+  if (cum == TRUE){
     if (sum(chainLadder[last]) < sum(chainLadder[,1])){
       warning("The input run-off triangle seems to be not of the cumultative type!")}
   } else {
@@ -104,9 +105,9 @@ parallelReserve <- function(chainLadder, method = "parallax", cum = T, residuals
   
   if (sum(as.numeric(is.na(chainLadder[!observed]))) > 0){
     ### backfitted residuals
-    backfitting <- T
+    backfitting <- TRUE
   }else{### standard residuals
-    backfitting <- F
+    backfitting <- FALSE
   }
   
   if (method == "parallax"){
@@ -182,7 +183,7 @@ parallelReserve <- function(chainLadder, method = "parallax", cum = T, residuals
     ### backfitting for residuals
     if (residuals == TRUE){
       if (backfitting == TRUE){
-        resids <- matrix(rev(as.vector(completed)), nrow = n, byrow = F)
+        resids <- matrix(rev(as.vector(completed)), nrow = n, byrow = FALSE)
         
         for (j in 0:(n - 2)){
           index_pairs <- expand.grid(i = 2:(n - j), j = j)
@@ -190,7 +191,7 @@ parallelReserve <- function(chainLadder, method = "parallax", cum = T, residuals
           resids[row(completed) + col(completed) == n + 2 + j] <- impute
         }
         
-        resids <- matrix(rev(as.vector(resids)), nrow = n, byrow = F)
+        resids <- matrix(rev(as.vector(resids)), nrow = n, byrow = FALSE)
         resids <- ChainLadder::cum2incr(completed) - ChainLadder::cum2incr(resids)
         resids[!observed] <- NA
       } else {
