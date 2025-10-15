@@ -1,0 +1,39 @@
+CameronMutual           Cameron Mutual Insurance Company Data
+GFCIB                   Guarantee Fund of the Czech Insurers' Bureau
+                        Data
+MidwestMutual           Midwest Family Mutual Insurance Company Data
+NevadaGeneral           Nevada General Insurance Company Data
+as.profileLadder        S3 Method Class 'profileLadder'
+covid19CZ               First Occurrences of Covid-19 Cases in the
+                        Czech Republic
+incrExplor              Exploration of Run-Off Triangle Increments
+mcBreaks                Access Markov Chain Breaks for Run-Off Triangle
+                        Increments
+mcReserve               MACRAME Based Development Profile Reserve
+mcStates                Access Markov Chain States in the MACRAME
+                        Algorithm
+mcTrans                 Access Markov Chain Transition Matrix in the
+                        MACRAME Algorithm
+observed                Observed Run-Off Triangle Layout vs. Predicted
+                        (Unknown) Layout
+parallelReserve         Parallel Based Development Profile Reserve
+permuteReserve          Permutation Bootstrap Reserve (PARALLAX, REACT,
+                        MACRAME)
+plot.mcSetup            Visualization of the Run-Off Triangle
+                        Increments for the Markov Chain
+plot.permutedReserve    Plotting the Output of the Permutation
+                        Bootstrap
+plot.profileLadder      Plotting Development Profiles
+print.mcSetup           Print Objects of the S3 Class 'mcSetup'
+print.permutedReserve   Print Objects of the S3 Class 'permutedReserve'
+print.profileLadder     Print Objects of the S3 Class 'profileLadder'
+set.fancy.print         Set Custom Color Styles for 'profileLadder'
+                        Output
+summary.mcSetup         Summary Method for the S3 Class Object
+                        'mcSetup'
+summary.permutedReserve
+                        Summary Method for the S3 Objects
+                        'permutedReserve'
+summary.profileLadder   Summary Method for Objects of the S3 Class
+                        Method 'profileLadder'
+xNetSubscribe           Internet Provider Monthly Income Data
