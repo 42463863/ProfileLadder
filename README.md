@@ -14,4 +14,5 @@ and the permutation bootstrap add-on proposed in Maciak, Mizera, and Pešta (202
 The **ProfileLadder** package can be downloaded from CRAN in installed in R by using
 
 ```r
-install.packages("MyPackage")
+install.packages("ProfileLadder")
+library("ProfileLadder")
