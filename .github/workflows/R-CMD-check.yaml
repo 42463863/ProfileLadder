@@ -51,8 +51,7 @@ jobs:
         run: |
           echo "Building package..."
           Rscript -e "pkgbuild::build(path = '.', dest_path = '.', binary = FALSE)"
-          echo "Files after build:"
-          ls -l
+
 
       - name: Upload package artifact
         if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
