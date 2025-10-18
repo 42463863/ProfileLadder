@@ -48,3 +48,13 @@ jobs:
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+          
+    
+      - name: Build package tar.gz
+        run: R CMD build .
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ProfileLadder-package
+          path: "*.tar.gz"
