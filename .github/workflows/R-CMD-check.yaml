@@ -59,3 +59,14 @@ jobs:
         with:
           name: ProfileLadder-package
           path: "*.tar.gz"
+          
+      - name: Create GitHub Release
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "ProfileLadder build ${{ github.run_number }}"
+          body: "Automated package build from GitHub Actions."
+          files: "*.tar.gz"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
