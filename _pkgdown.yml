@@ -1,0 +1,69 @@
+url: https://42463863.github.io/ProfileLadder
+
+template:
+  logo: "man/figures/logo.png"
+  bootstrap: 5
+  params:
+    bootswatch: flatly
+  extra_css: "pkgdown-extra.css"
+
+
+navbar:
+  right:
+    - text: "Maintainer: Matúš Maciak"
+      href: "https://karlin.mff.cuni.cz/~maciak"
+      class: "maintainer"
+
+
+reference:
+  - title: "Core Functions"
+    desc: >
+     The key functions of the ProfileLadder package that implements three functional-based
+     nonparametric (point) reserve prediction algorithsms and the overall distributional 
+     reserve prediction implemented in the permutation bootstrap resampling.
+    contents:
+      - parallelReserve
+      - mcReserve
+      - permuteReserve
+
+  - title: "Utility Functions"
+    desc: >
+      Supporting functions that help to handle run-off triangle data and allow some functionality 
+      between the ProfileLadder package and the ChainLadder package. 
+    contents:
+      - as.profileLadder
+      - incrExplor
+      - mcBreaks
+      - mcStates
+      - mcTrans
+      - observed
+
+  - title: "Print & Summary Methods"
+    contents:
+      - print.mcSetup
+      - print.permutedReserve
+      - print.profileLadder
+      - summary.mcSetup
+      - summary.permutedReserve
+      - summary.profileLadder
+
+  - title: "Plot Methods"
+    contents:
+      - plot.mcSetup
+      - plot.permutedReserve
+      - plot.profileLadder
+
+  - title: "Other"
+    contents:
+      - set.fancy.print
+
+  - title: "Datasets"
+    desc: >
+      Datasets from a real actuarial practice but also from areas beyond the insurance business. 
+    contents:
+      - CameronMutual
+      - covid19CZ
+      - GFCIB
+      - MidwestMutual
+      - NevadaGeneral
+      - xNetSubscribe

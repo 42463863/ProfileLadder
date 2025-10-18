@@ -4,7 +4,14 @@
 \alias{permuteReserve}
 \title{Permutation Bootstrap Reserve (PARALLAX, REACT, MACRAME)}
 \usage{
-permuteReserve(object, B = 500, std = TRUE, quantile = 0.995, adjustMC = TRUE)
+permuteReserve(
+  object,
+  B = 500,
+  std = TRUE,
+  quantile = 0.995,
+  adjustMC = TRUE,
+  pb = TRUE
+)
 }
 \arguments{
 \item{object}{an object which is the result of some functional-based reserving
@@ -32,6 +39,10 @@ chain states and the corresponding breaks should be adjusted for every bootstrap
 permutation or the same set of Markov states and breaks is used for each permuted
 run-off triangle (only applies if the input \code{object} is an output
 of the MACRAME algorithm---the function \code{mcReserve()})}
+
+\item{pb}{logical (\code{TRUE} by DEFAULT) to indicate whether a progress bar
+for bootstrap resampling should be used or not (required the R package \code{pbapply})
+to be installed}
 }
 \value{
 An object of the class \code{permutedReserve} which is a list with
