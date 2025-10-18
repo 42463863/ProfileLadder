@@ -1,5 +1,3 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [main, master]
@@ -20,9 +18,9 @@ jobs:
         config:
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release'}
+          - {os: ubuntu-latest,  r: 'release'}
+          - {os: ubuntu-latest,  r: 'oldrel-1'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -48,18 +46,16 @@ jobs:
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
-          
-      - name: Upload package artifact
-        if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ProfileLadder-package
-          path: "*.tar.gz"
-          
+
       - name: Build package tar.gz
-        run: R CMD build .
+        run: |
+          echo "Building package..."
+          R CMD build .
+          echo "Files after build:"
+          ls -l
 
       - name: Upload package artifact
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
         uses: actions/upload-artifact@v4
         with:
           name: ProfileLadder-package
