@@ -27,6 +27,9 @@
 #' permutation or the same set of Markov states and breaks is used for each permuted
 #' run-off triangle (only applies if the input \code{object} is an output 
 #' of the MACRAME algorithm---the function \code{mcReserve()})
+#' @param pb logical (\code{TRUE} by DEFAULT) to indicate whether a progress bar 
+#' for bootstrap resampling should be used or not (required the R package \code{pbapply})
+#' to be installed
 #' 
 #' @returns An object of the class \code{permutedReserve} which is a list with  
 #' the following elements: 
@@ -101,7 +104,7 @@
 #' \url{https://data.europa.eu/eli/dir/2009/138/oj}
 #' 
 #' @export
-permuteReserve <- function(object, B = 500, std = TRUE, quantile = 0.995, adjustMC = TRUE){
+permuteReserve <- function(object, B = 500, std = TRUE, quantile = 0.995, adjustMC = TRUE, pb = TRUE){
   ### input data checks
   if (!inherits(object, c("profileLadder", "glmReserve", "tweedieReserve", "MackChainLadder", "ChainLadder"))){
     stop("The input object must be of a class 'profileLadder', 'glmReserve', 'tweedieReserve', 'MackChainLadder' or 'ChainLadder'")}
@@ -208,7 +211,17 @@ permuteReserve <- function(object, B = 500, std = TRUE, quantile = 0.995, adjust
   
   ### permutation bootstrap with time efficiency  
   startTime <- Sys.time()
-  pReserve <- replicate(B, permute(completed, method))
+  if (pb == TRUE){ 
+    if (requireNamespace("pbapply", quietly = TRUE)){
+      pbapply::pboptions(type = "timer", char = ">", txt.width = 43)
+      pReserve <- pbapply::pbreplicate(B, permute(completed, method))
+    } else {
+      message("The R package 'pbapply' must be installed to use the progress bar")
+      pReserve <- replicate(B, permute(completed, method))
+    } 
+  } else {
+    pReserve <- replicate(B, permute(completed, method))
+  }
   endTime <- Sys.time() - startTime
     
   ### bootstrapped ultimates

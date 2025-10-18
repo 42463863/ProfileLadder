@@ -479,6 +479,10 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 ## fancy print option for the run-off triangle 
 print(as.profileLadder(observed(CameronMutual)), fancy.print = TRUE)
 
+## fancy print option for the run-off triangle with two decimals
+set.fancy.print(display.digits = 2)
+print(as.profileLadder(observed(CameronMutual)))
+
 ## standard print option for the run-off triangle
 print(as.profileLadder(observed(CameronMutual)), fancy.print = FALSE)
 
