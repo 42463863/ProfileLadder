@@ -2,52 +2,129 @@
 % Please edit documentation in R/permuteReserve.R
 \name{permuteReserve}
 \alias{permuteReserve}
-\title{Permutation bootstrap reserve (PARALLAX, REACT, MACRAME)}
+\title{Permutation Bootstrap Reserve (PARALLAX, REACT, MACRAME)}
 \usage{
-permuteReserve(object, B = 500, std = TRUE, quantile = 0.995)
+permuteReserve(
+  object,
+  B = 500,
+  std = TRUE,
+  quantile = 0.995,
+  adjustMC = TRUE,
+  pb = TRUE
+)
 }
 \arguments{
-\item{object}{an object of the class \code{profileLadder} (i.e., the output from the function \code{parallelReserve()} or \code{mcReserve()})}
+\item{object}{an object which is the result of some functional-based reserving
+method implemented in the ProfileLadder package (functions \code{parallelReserve()}
+and \code{mcReserve()} in particular) or some parametric approach from the
+ChainLadder package (specifically the functions \code{chainladder()},
+\code{glmReserve()}, \code{tweedieReserve()}, and \code{MackChainLadder()}).
+The following \code{object}'s classes are allowed: \code{profileLadder},
+\code{ChainLadder}, \code{glmReserve}, \code{tweedieReserve}, and \code{MackChainLadder}.}
 
-\item{B}{of permutations to be performed (\code{DEFAULT = 500})}
+\item{B}{number of the bootstrap permutations to be performed (by DEFAULT the
+number of permutations is set to \code{B = 500})}
 
-\item{std}{logical to indicate whether the run-off triangle should be standardized by the first column increments (DEFAULT) or not (\code{std = FALSE})}
+\item{std}{logical to indicate whether the run-off triangle should be
+standardized by the first column increments (\code{TRUE} by DEFAULT) or not
+(\code{std = FALSE}).For more details about the triangle standardization,
+see Maciak, Mizera, and Pešta (2022)}
 
-\item{quantile}{...(DEFAULT \code{quantile = 0.995})}
+\item{quantile}{quantile level for the \code{BootVar.} characteristic of the
+bootstrapped distribution (the DEFAULT choice \code{quantile = 0.995} is
+explicitly required  by the Solvency II principle used by actuaries in practice)}
+
+\item{adjustMC}{logical (\code{TRUE} by DEFAULT) to indicate whether the Markov
+chain states and the corresponding breaks should be adjusted for every bootstrap
+permutation or the same set of Markov states and breaks is used for each permuted
+run-off triangle (only applies if the input \code{object} is an output
+of the MACRAME algorithm---the function \code{mcReserve()})}
+
+\item{pb}{logical (\code{TRUE} by DEFAULT) to indicate whether a progress bar
+for bootstrap resampling should be used or not (required the R package \code{pbapply})
+to be installed}
 }
 \value{
-A list with with the following elements:
-\item{method}{summary of the permutation bootstrap}
-\item{estimatedReserve}{numeric vector with four values: Total paid amount (i.e., the sum of the last observed diagonal in a cumulative run-off triangle); Total estimated amount (i.e., the sum of the last column
-in the completed cumulative triangle); Estimated reserve (i.e., the sum of the last column in the completed cumulative triangle minus the sum of the last observed diagonal); True reserve
-if a completed (true) run-off triangle is available}
-\item{pSummary}{numeric vector with our values: Average of \code{B} permutation bootstrap reserves; Standard error of \code{B} permutation bootstrap reserves;
-numeric value \code{BootCov\%} given as a percentage proportion between the standard error and the average; \code{BootVar.995} providing the 0.995 quantile of the permutation bootstrap reserves
-relative to the permutation bootstrap mean reserve}
-\item{pReserves}{a numeric vector of the length \code{B} with estimated (permuted) reserves for each row-permuted run-off triangle}
-\item{time}{a numeric vector with the number of permutation resamples (\code{B}), the run-off triangle dimension (\code{n}) and
-the computation time consumed for the permutation bootstrap calculations}
+An object of the class \code{permutedReserve} which is a list with
+the following elements:
+\item{eSummary}{numeric vector with four values summarizing the estimated
+reserve: Paid amount (i.e., the sum of the last observed diagonal in the given
+cumulative run-off triangle); Estimated ultimate (i.e., the sum of the
+last column in the completed cumulative triangle); Estimated reserve (i.e., the
+sum of the last column in the completed cumulative triangle minus the sum of
+the last observed diagonal); True reserve if a completed (true) run-off triangle
+is available}
+\item{pSummary}{numeric vector with four values summarizing the overall reserve
+distribution: \code{Boot.Mean} gives the verage of \code{B} permutation bootstrap
+reserves; \code{Std.Er.} provides the corresponding standard error of \code{B}
+permutation bootstrap reserves; The value of \code{BootCov\%} stands for
+a percentage proportion between the standard error and the average;
+Finally, \code{BootVar.995} provides the estimated 0.995 quantile (by DEFAULT)
+of the bootstrap reserve distribution (for \code{quantile = 0.995} and, otherwise,
+it is modified acordingly) given relatively with respect to the permutation
+bootstrapped mean reserve}
+\item{pReserves}{a numeric vector of the length \code{B} with the estimated
+(permuted) reserves for each row-permuted run-off triangle in \code{B}
+independent Monte Carlo simulation runs}
+\item{pUltimates}{A matrix of the dimensions \code{B x n} (where \code{n}
+stands for the number of the origin/development periods) with \code{B} simulated
+ultimate payments -- the last column in the completed run-off triangle}
+\item{pLatest}{A matrix of the dimensions \code{B x n} (where \code{n} again
+stands for the number of the origin/development periods) with \code{B} simulated
+incremental diagonals}
+\item{pLatestCum}{A matrix of the dimensions \code{B x n} (\code{n} being the
+number of the origin/development periods) with \code{B} simulated cumulative
+diagonals}
+\item{pFirst}{A matrix of the dimension \code{B x n} (\code{n} being the
+number of the origin/development periods) with \code{B} simulated first payment
+columns (all columns are identical for \code{std = TRUE})}
+\item{Triangle}{The input run-off triangle}
+\item{FullTriangle}{The completed run-off triangle by using one of the PARALLAX,
+REACT, or MACRAME estimation method}
+\item{trueComplete}{The true complete run-off triangle (if available) and \code{NA}
+value otherwise}
+\item{info}{a numeric vector summarizing the bootstrap computational efficiency:
+In particular, the OS/Architecture type, the number of permutations (\code{B}),
+the input run-off triangle dimension (\code{n}) and the computation time needed
+for the permutation bootstrap calculations}
 }
 \description{
-The function takes the output from the function \code{parallelReserve()} or \code{mcReserve} and provides the overall
-reserve distribution in terms of the permutation bootstrap proposed in Maciak, Mizera, and Pešta (2022).
+The function takes a completed run-off triangle provided either by some classical
+parametric reserving technique (ODP model, Mack model, or Tweedie model) or some
+functional-based alternative (PARALLAX, REACT, or MACRAME) and estimates the overall
+reserve distribution in terms of the permutation bootstrap approach proposed
+in Maciak, Mizera, and Pešta (2022).
 }
 \examples{
 ## REACT algorithm and the permutation bootstrap reserve 
 data(CameronMutual)
-
 output <- parallelReserve(CameronMutual, method = "react")
-permuteReserve(output)
+summary(permuteReserve(output, B = 100))
 
-## MACRAME algorithm with a pre-specified number of states and the permutation bootstrap reserve
+## MACRAME algorithm with a pre-specified number of states using the same MC 
+## states and the same break for each permuted run-off triangle
 output <- mcReserve(CameronMutual, states = 5)
-permuteReserve(output)
+plot(permuteReserve(output, B = 100, adjustMC = FALSE))
+
+## Permutation bootstrap applied to a completed run-off triangle 
+## obtained by a parametric Over-dispersed Poisson model (from ChainLadder pkg)
+library("ChainLadder")
+output <- permuteReserve(glmReserve(MW2008), B = 100)
+summary(output, triangle.summary = TRUE)
+
 
 
 }
 \references{
-Maciak, M., Mizera, I., and Pešta, M. (2022). Functional Profile Techniques for Claims Reserving. ASTIN Bulletin, 52(2), 449-482. DOI:10.1017/asb.2022.4
+Maciak, M., Mizera, I., and Pešta, M. (2022). Functional Profile
+Techniques for Claims Reserving. ASTIN Bulletin, 52(2), 449-482. DOI:10.1017/asb.2022.4
+
+European Parliament and Council (2009). Directive 2009/138/EC of
+the European Parliament and of the Council of 25 November 2009 on the taking-up
+and pursuit of the business of Insurance and Reinsurance (Solvency II). Official
+Journal of the European Union, 1–155.\cr
+\url{https://data.europa.eu/eli/dir/2009/138/oj}
 }
 \seealso{
-\code{\link[=parallelReserve]{parallelReserve()}}, \code{\link[=mcReserve]{mcReserve()}}
+\code{\link[=parallelReserve]{parallelReserve()}}, \code{\link[=mcReserve]{mcReserve()}}, \code{\link[=plot.permutedReserve]{plot.permutedReserve()}}, \code{\link[=summary.permutedReserve]{summary.permutedReserve()}}
 }

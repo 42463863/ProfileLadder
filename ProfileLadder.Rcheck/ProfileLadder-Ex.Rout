@@ -1,0 +1,1476 @@
+
+R version 4.0.2 (2020-06-22) -- "Taking Off Again"
+Copyright (C) 2020 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin17.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "ProfileLadder"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> base::assign(".ExTimings", "ProfileLadder-Ex.timings", pos = 'CheckExEnv')
+> base::cat("name\tuser\tsystem\telapsed\n", file=base::get(".ExTimings", pos = 'CheckExEnv'))
+> base::assign(".format_ptime",
++ function(x) {
++   if(!is.na(x[4L])) x[1L] <- x[1L] + x[4L]
++   if(!is.na(x[5L])) x[2L] <- x[2L] + x[5L]
++   options(OutDec = '.')
++   format(x[1L:3L], digits = 7L)
++ },
++ pos = 'CheckExEnv')
+> 
+> ### * </HEADER>
+> library('ProfileLadder')
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("as.profileLadder")
+> ### * as.profileLadder
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: as.profileLadder
+> ### Title: S3 Method Class 'profileLadder'
+> ### Aliases: as.profileLadder
+> 
+> ### ** Examples
+> 
+> data(CameronMutual)
+> print(CameronMutual) 
+      dev
+origin    1     2     3     4     5     6     7     8     9    10
+    1  5244  9228 10823 11352 11791 12082 12120 12199 12215 12215
+    2  5984  9939 11725 12346 12746 12909 13034 13109 13113 13115
+    3  7452 12421 14171 14752 15066 15354 15637 15720 15744 15786
+    4  7115 11117 12488 13274 13662 13859 13872 13935 13973 13972
+    5  5753  8969  9917 10697 11135 11282 11255 11331 11332 11354
+    6  3937  6524  7989  8543  8757  8901  9013  9012  9046  9164
+    7  5127  8212  8976  9325  9718  9795  9833  9885  9816  9815
+    8  5046  8006  8984  9633 10102 10166 10261 10252 10252 10252
+    9  5129  8202  9185  9681  9951 10033 10133 10182 10182 10183
+    10 3689  6043  6789  7089  7164  7197  7253  7267  7266  7266
+attr(,"class")
+[1] "triangle" "matrix"  
+> 
+> x <- as.profileLadder(CameronMutual)
+> 
+> print(x)
+Run-off Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                   NA                    NA                105159 
+         True Reserve 
+                 7963 
+
+Run-off triangle (complete/fully observed)
+5244 	 9228 	10823 	11352 	11791 	12082 	12120 	12199 	12215 	12215 	
+5984 	 9939 	11725 	12346 	12746 	12909 	13034 	13109 	13113 	13115 	
+7452 	12421 	14171 	14752 	15066 	15354 	15637 	15720 	15744 	15786 	
+7115 	11117 	12488 	13274 	13662 	13859 	13872 	13935 	13973 	13972 	
+5753 	 8969 	 9917 	10697 	11135 	11282 	11255 	11331 	11332 	11354 	
+3937 	 6524 	 7989 	 8543 	 8757 	 8901 	 9013 	 9012 	 9046 	 9164 	
+5127 	 8212 	 8976 	 9325 	 9718 	 9795 	 9833 	 9885 	 9816 	 9815 	
+5046 	 8006 	 8984 	 9633 	10102 	10166 	10261 	10252 	10252 	10252 	
+5129 	 8202 	 9185 	 9681 	 9951 	10033 	10133 	10182 	10182 	10183 	
+3689 	 6043 	 6789 	 7089 	 7164 	 7197 	 7253 	 7267 	 7266 	 7266 	
+> plot(x)
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("as.profileLadder", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("incrExplor")
+> ### * incrExplor
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: incrExplor
+> ### Title: Exploration of Run-Off Triangle Increments
+> ### Aliases: incrExplor
+> 
+> ### ** Examples
+> 
+> data(CameronMutual) 
+> 
+> ## default Markov Chain states with (roughly) equally occupied bins 
+> incrExplor(CameronMutual)
+Data-driven (default) setting of the Markov Chain in MACRAME
+MC States: 13 81 197 302.5 438 601 948 1672.5 3073 3993
+
+Corresponding bins for the run-off triangle increments
+ [1] "[-Inf, 75)"   "[75, 147)"    "[147, 288)"   "[288, 388)"   "[388, 554)"  
+ [6] "[554, 780)"   "[780, 1465)"  "[1465, 2587)" "[2587, 3955)" "[3955, Inf)" 
+
+> 
+> ## five Markov Chain states (with roughly equally occupied bins)
+> incrExplor(CameronMutual, states = 5)
+Data-driven (default) setting of the Markov Chain in MACRAME
+MC States: 13 81 197 302.5 438 601 948 1672.5 3073 3993
+
+Corresponding bins for the run-off triangle increments
+ [1] "[-Inf, 75)"   "[75, 147)"    "[147, 288)"   "[288, 388)"   "[388, 554)"  
+ [6] "[554, 780)"   "[780, 1465)"  "[1465, 2587)" "[2587, 3955)" "[3955, Inf)" 
+
+User-modified MC setting
+MC States: 38 283 529 1371 3216
+
+Corresponding bins for the run-off triangle increments
+[1] "[-Inf, 147)" "[147, 388)"  "[388, 780)"  "[780, 2587)" "[2587, Inf)"
+
+Development periods (run-off triangle columns) not considered: 1
+Method selected to summarize the increments within each bin: DEFAULT (median)
+> 
+> ## explicitly defined breaks for five increment bins while the Markov states
+> ## are obtained as medians of the increments within each bin
+> incrExplor(CameronMutual, breaks = c(20, 500, 1000, 2000))
+Data-driven (default) setting of the Markov Chain in MACRAME
+MC States: 13 81 197 302.5 438 601 948 1672.5 3073 3993
+
+Corresponding bins for the run-off triangle increments
+ [1] "[-Inf, 75)"   "[75, 147)"    "[147, 288)"   "[288, 388)"   "[388, 554)"  
+ [6] "[554, 780)"   "[780, 1465)"  "[1465, 2587)" "[2587, 3955)" "[3955, Inf)" 
+
+User-modified MC setting
+MC States: 8.5 248.5 764 1595 3216
+
+Corresponding bins for the run-off triangle increments
+[1] "[-Inf, 20)"   "[20, 500)"    "[500, 1000)"  "[1000, 2000)" "[2000, Inf)" 
+
+Development periods (run-off triangle columns) not considered: 1
+Method selected to summarize the increments within each bin: DEFAULT (median)
+> 
+> ## explicitly defined breaks for five bins and the Markov states
+> ## are given as the maximum increments within each bin
+> incrExplor(CameronMutual, breaks = c(20, 500, 1000, 2000), method = "max")
+Data-driven (default) setting of the Markov Chain in MACRAME
+MC States: 13 81 197 302.5 438 601 948 1672.5 3073 3993
+
+Corresponding bins for the run-off triangle increments
+ [1] "[-Inf, 75)"   "[75, 147)"    "[147, 288)"   "[288, 388)"   "[388, 554)"  
+ [6] "[554, 780)"   "[780, 1465)"  "[1465, 2587)" "[2587, 3955)" "[3955, Inf)" 
+
+User-modified MC setting
+MC States: 16 439 978 1786 4969
+
+Corresponding bins for the run-off triangle increments
+[1] "[-Inf, 20)"   "[20, 500)"    "[500, 1000)"  "[1000, 2000)" "[2000, Inf)" 
+
+Development periods (run-off triangle columns) not considered: 1
+Method selected to summarize the increments within each bin: max
+> 
+> ## manually defined breaks for the bins and the corresponding states 
+> ## exactly one state must be within each break
+> incrExplor(CameronMutual, breaks = c(20, 500, 1000), 
++                           states = c(10, 250, 800, 1500))
+Data-driven (default) setting of the Markov Chain in MACRAME
+MC States: 13 81 197 302.5 438 601 948 1672.5 3073 3993
+
+Corresponding bins for the run-off triangle increments
+ [1] "[-Inf, 75)"   "[75, 147)"    "[147, 288)"   "[288, 388)"   "[388, 554)"  
+ [6] "[554, 780)"   "[780, 1465)"  "[1465, 2587)" "[2587, 3955)" "[3955, Inf)" 
+
+User-modified MC setting
+MC States: 10 250 800 1500
+
+Corresponding bins for the run-off triangle increments
+[1] "[-Inf, 20)"  "[20, 500)"   "[500, 1000)" "[1000, Inf)"
+
+Development periods (run-off triangle columns) not considered: 1
+Method selected to summarize the increments within each bin: DEFAULT (median)
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("incrExplor", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("mcBreaks")
+> ### * mcBreaks
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: mcBreaks
+> ### Title: Access Markov Chain Breaks for Run-Off Triangle Increments
+> ### Aliases: mcBreaks
+> 
+> ### ** Examples
+> 
+> ## DEFAULT performance of the incrExplor() function and the MACRAME algorithm
+> output1 <- incrExplor(CameronMutual)
+> output2 <- mcReserve(CameronMutual)
+> 
+> ## Extracting the DEFAULT break points from both outputs
+> mcBreaks(output1)
+ [1] -Inf   75  147  288  388  554  780 1465 2587 3955  Inf
+> mcBreaks(output2)
+ [1] -Inf   75  147  288  388  554  780 1465 2587 3955  Inf
+> 
+> ## Extracting the corresponding break points for 4 Markov states
+> mcBreaks(incrExplor(CameronMutual, states = 4))
+[1] -Inf  214  554 1750  Inf
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("mcBreaks", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("mcReserve")
+> ### * mcReserve
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: mcReserve
+> ### Title: MACRAME Based Development Profile Reserve
+> ### Aliases: mcReserve
+> 
+> ### ** Examples
+> 
+> ## run-off (upper-left) triangle with NA values
+> data(MW2014, package = "ChainLadder")
+> print(MW2014) 
+      dev
+origin     0     1     2     3     4     5     6     7     8     9    10    11
+    1  13109 20355 21337 22043 22401 22658 22997 23158 23492 23664 23699 23904
+    2  14457 22038 22627 23114 23238 23312 23440 23490 23964 23976 24048 24111
+    3  16075 22672 23753 24052 24206 24757 24786 24807 24823 24888 24986 25401
+    4  15682 23464 24465 25052 25529 25708 25752 25770 25835 26075 26082 26146
+    5  16551 23706 24627 25573 26046 26115 26283 26481 26701 26718 26724 26728
+    6  15439 23796 24866 25317 26139 26154 26175 26205 26764 26818 26836 26959
+    7  14629 21645 22826 23599 24992 25434 25476 25549 25604 25709 25723    NA
+    8  17585 26288 27623 27939 28335 28638 28715 28759 29525 30302    NA    NA
+    9  17419 25941 27066 27761 28043 28477 28721 28878 28948    NA    NA    NA
+    10 16665 25370 26909 27611 27729 27861 29830 29844    NA    NA    NA    NA
+    11 15471 23745 25117 26378 26971 27396 27480    NA    NA    NA    NA    NA
+    12 15103 23393 26809 27691 28061 29183    NA    NA    NA    NA    NA    NA
+    13 14540 22642 23571 24127 24210    NA    NA    NA    NA    NA    NA    NA
+    14 14590 22336 23440 24029    NA    NA    NA    NA    NA    NA    NA    NA
+    15 13967 21515 22603    NA    NA    NA    NA    NA    NA    NA    NA    NA
+    16 12930 20111    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+    17 12539    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+      dev
+origin    12    13    14    15    16
+    1  23960 23992 23994 24001 24002
+    2  24252 24538 24540 24550    NA
+    3  25681 25705 25732    NA    NA
+    4  26150 26167    NA    NA    NA
+    5  26735    NA    NA    NA    NA
+    6     NA    NA    NA    NA    NA
+    7     NA    NA    NA    NA    NA
+    8     NA    NA    NA    NA    NA
+    9     NA    NA    NA    NA    NA
+    10    NA    NA    NA    NA    NA
+    11    NA    NA    NA    NA    NA
+    12    NA    NA    NA    NA    NA
+    13    NA    NA    NA    NA    NA
+    14    NA    NA    NA    NA    NA
+    15    NA    NA    NA    NA    NA
+    16    NA    NA    NA    NA    NA
+    17    NA    NA    NA    NA    NA
+> 
+> ## MACRAME reserve prediction with the DEFAULT Markov chain setting 
+> mcReserve(MW2014, residuals = TRUE)
+MACRAME Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+             27861.23             456978.23             429117.00 
+         True Reserve 
+                   NA 
+
+MACRAME method (functional profile completion)
+13109 	20355 	21337 	22043 	22401 	22658 	22997 	23158 	23492 	23664 	23699 	23904 	23960 	23992 	23994 	24001 	24002 	
+14457 	22038 	22627 	23114 	23238 	23312 	23440 	23490 	23964 	23976 	24048 	24111 	24252 	24538 	24540 	24550 	24597 	
+16075 	22672 	23753 	24052 	24206 	24757 	24786 	24807 	24823 	24888 	24986 	25401 	25681 	25705 	25732 	25774 	25899 	
+15682 	23464 	24465 	25052 	25529 	25708 	25752 	25770 	25835 	26075 	26082 	26146 	26150 	26167 	26209 	26334 	26472 	
+16551 	23706 	24627 	25573 	26046 	26115 	26283 	26481 	26701 	26718 	26724 	26728 	26735 	26782 	26856 	26993 	27140 	
+15439 	23796 	24866 	25317 	26139 	26154 	26175 	26205 	26764 	26818 	26836 	26959 	27310 	27573 	27804 	28007 	28194 	
+14629 	21645 	22826 	23599 	24992 	25434 	25476 	25549 	25604 	25709 	25723 	25770 	25844 	25981 	26128 	26288 	26452 	
+17585 	26288 	27623 	27939 	28335 	28638 	28715 	28759 	29525 	30302 	30935 	31310 	31570 	31788 	31981 	32165 	32341 	
+17419 	25941 	27066 	27761 	28043 	28477 	28721 	28878 	28948 	29050 	29209 	29382 	29548 	29720 	29890 	30061 	30231 	
+16665 	25370 	26909 	27611 	27729 	27861 	29830 	29844 	29891 	29965 	30102 	30249 	30409 	30573 	30741 	30909 	31079 	
+15471 	23745 	25117 	26378 	26971 	27396 	27480 	27596 	27799 	27972 	28159 	28331 	28507 	28678 	28850 	29021 	29192 	
+15103 	23393 	26809 	27691 	28061 	29183 	29704 	29971 	30220 	30427 	30625 	30808 	30986 	31161 	31334 	31506 	31677 	
+14540 	22642 	23571 	24127 	24210 	24326 	24529 	24702 	24889 	25061 	25237 	25408 	25580 	25751 	25922 	26093 	26263 	
+14590 	22336 	23440 	24029 	24340 	24602 	24817 	25021 	25206 	25387 	25562 	25736 	25908 	26079 	26250 	26421 	26592 	
+13967 	21515 	22603 	23124 	23391 	23640 	23847 	24045 	24228 	24406 	24581 	24754 	24926 	25097 	25268 	25438 	25609 	
+12930 	20111 	21134 	21657 	21953 	22202 	22411 	22607 	22789 	22967 	23141 	23314 	23486 	23657 	23828 	23998 	24169 	
+12539 	13743 	14333 	14663 	14924 	15138 	15335 	15518 	15696 	15870 	16043 	16215 	16386 	16557 	16727 	16898 	17069 	
+> 
+> ## complete run-off triangle with 'unknown' truth (lower-bottom run-off triangle)  
+> ## with incremental residuals (true increments minus predicted ones)  
+> data(CameronMutual)
+> mcReserve(CameronMutual, residuals = TRUE)
+MACRAME Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+             8081.963            113240.963            105159.000 
+         True Reserve 
+             7963.000 
+
+MACRAME method (functional profile completion)
+5244 	 9228 	10823 	11352 	11791 	12082 	12120 	12199 	12215 	12215 	
+5984 	 9939 	11725 	12346 	12746 	12909 	13034 	13109 	13113 	13160 	
+7452 	12421 	14171 	14752 	15066 	15354 	15637 	15720 	15756 	15799 	
+7115 	11117 	12488 	13274 	13662 	13859 	13872 	13919 	13960 	14003 	
+5753 	 8969 	 9917 	10697 	11135 	11282 	11340 	11380 	11422 	11464 	
+3937 	 6524 	 7989 	 8543 	 8757 	 8815 	 8855 	 8897 	 8939 	 8982 	
+5127 	 8212 	 8976 	 9325 	 9496 	 9588 	 9646 	 9693 	 9737 	 9780 	
+5046 	 8006 	 8984 	 9677 	10157 	10458 	10641 	10759 	10840 	10902 	
+5129 	 8202 	 9244 	 9808 	10165 	10376 	10502 	10586 	10649 	10701 	
+3689 	 4731 	 5295 	 5652 	 5863 	 5989 	 6073 	 6136 	 6188 	 6236 	
+> 
+> ## the same output in terms of the reserve prediction but back-fitted residuals 
+> ## are provided instead (as the run-off triangle only is provided)
+> data(observed(CameronMutual))
+Warning in data(observed(CameronMutual)) :
+  data set ‘observed(CameronMutual)’ not found
+> mcReserve(observed(CameronMutual), residuals = TRUE)
+MACRAME Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+             8081.963            113240.963            105159.000 
+         True Reserve 
+                   NA 
+
+MACRAME method (functional profile completion)
+5244 	 9228 	10823 	11352 	11791 	12082 	12120 	12199 	12215 	12215 	
+5984 	 9939 	11725 	12346 	12746 	12909 	13034 	13109 	13113 	13160 	
+7452 	12421 	14171 	14752 	15066 	15354 	15637 	15720 	15756 	15799 	
+7115 	11117 	12488 	13274 	13662 	13859 	13872 	13919 	13960 	14003 	
+5753 	 8969 	 9917 	10697 	11135 	11282 	11340 	11380 	11422 	11464 	
+3937 	 6524 	 7989 	 8543 	 8757 	 8815 	 8855 	 8897 	 8939 	 8982 	
+5127 	 8212 	 8976 	 9325 	 9496 	 9588 	 9646 	 9693 	 9737 	 9780 	
+5046 	 8006 	 8984 	 9677 	10157 	10458 	10641 	10759 	10840 	10902 	
+5129 	 8202 	 9244 	 9808 	10165 	10376 	10502 	10586 	10649 	10701 	
+3689 	 4731 	 5295 	 5652 	 5863 	 5989 	 6073 	 6136 	 6188 	 6236 	
+> 
+> ## MACRAME reserve prediction with the underlying Markov chain with five 
+> ## explicit Markov chain states
+> mcReserve(CameronMutual, residuals = TRUE, states = c(200, 600, 1000))
+MACRAME Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+             13089.81             118248.81             105159.00 
+         True Reserve 
+              7963.00 
+
+MACRAME method (functional profile completion)
+5244 	 9228 	10823 	11352 	11791 	12082 	12120 	12199 	12215 	12215 	
+5984 	 9939 	11725 	12346 	12746 	12909 	13034 	13109 	13113 	13313 	
+7452 	12421 	14171 	14752 	15066 	15354 	15637 	15720 	15920 	16120 	
+7115 	11117 	12488 	13274 	13662 	13859 	13872 	14072 	14272 	14472 	
+5753 	 8969 	 9917 	10697 	11135 	11282 	11482 	11682 	11882 	12082 	
+3937 	 6524 	 7989 	 8543 	 8757 	 8957 	 9157 	 9357 	 9557 	 9757 	
+5127 	 8212 	 8976 	 9325 	 9525 	 9725 	 9925 	10125 	10325 	10525 	
+5046 	 8006 	 8984 	 9784 	10344 	10742 	11046 	11300 	11528 	11741 	
+5129 	 8202 	 9002 	 9562 	 9960 	10264 	10518 	10746 	10959 	11166 	
+3689 	 4489 	 5049 	 5447 	 5751 	 6005 	 6233 	 6446 	 6653 	 6857 	
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("mcReserve", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("mcStates")
+> ### * mcStates
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: mcStates
+> ### Title: Access Markov Chain States in the MACRAME Algorithm
+> ### Aliases: mcStates
+> 
+> ### ** Examples
+> 
+> ## MACRAME reserve prediction with the DEFAULT Markov chain setup 
+> output <- mcReserve(CameronMutual)
+> 
+> ## Extracting the corresponding Markov states
+> mcStates(output)
+ [1]   13.0   81.0  197.0  302.5  438.0  601.0  948.0 1672.5 3073.0 3993.0
+> 
+> #' ## Extracting the corresponding states when explicit breaks are used
+> mcStates(mcReserve(CameronMutual, breaks = c(1000, 2000, 3000)))
+[1]  291.0 1595.0 2773.5 3955.0
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("mcStates", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("mcTrans")
+> ### * mcTrans
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: mcTrans
+> ### Title: Access Markov Chain Transition Matrix in the MACRAME Algorithm
+> ### Aliases: mcTrans
+> 
+> ### ** Examples
+> 
+> ## MACRAME reserve prediction with the DEFAULT Markov chain setup 
+> output <- mcReserve(CameronMutual)
+> 
+> ## Extracting the corresponding break points
+> mcTrans(output)
+        [,1]   [,2]   [,3]   [,4] [,5] [,6] [,7] [,8] [,9] [,10]
+ [1,] 0.5000 0.5000 0.0000 0.0000 0.00 0.00 0.00 0.00    0     0
+ [2,] 0.6667 0.3333 0.0000 0.0000 0.00 0.00 0.00 0.00    0     0
+ [3,] 0.3333 0.6667 0.0000 0.0000 0.00 0.00 0.00 0.00    0     0
+ [4,] 0.3333 0.0000 0.3333 0.3333 0.00 0.00 0.00 0.00    0     0
+ [5,] 0.0000 0.0000 0.6000 0.2000 0.20 0.00 0.00 0.00    0     0
+ [6,] 0.0000 0.0000 0.2500 0.5000 0.25 0.00 0.00 0.00    0     0
+ [7,] 0.0000 0.0000 0.0000 0.0000 0.50 0.00 0.50 0.00    0     0
+ [8,] 0.0000 0.0000 0.0000 0.0000 0.25 0.75 0.00 0.00    0     0
+ [9,] 0.0000 0.0000 0.0000 0.0000 0.00 0.25 0.50 0.25    0     0
+[10,] 0.0000 0.0000 0.0000 0.0000 0.00 0.00 0.25 0.75    0     0
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("mcTrans", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("observed")
+> ### * observed
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: observed
+> ### Title: Observed Run-Off Triangle Layout vs. Predicted (Unknown) Layout
+> ### Aliases: observed
+> 
+> ### ** Examples
+> 
+> ## observed/unobserved layout for the run-off triangle with 5 origins
+> print(observed(5))
+     [,1]  [,2]  [,3]  [,4]  [,5]
+[1,] TRUE  TRUE  TRUE  TRUE  TRUE
+[2,] TRUE  TRUE  TRUE  TRUE FALSE
+[3,] TRUE  TRUE  TRUE FALSE FALSE
+[4,] TRUE  TRUE FALSE FALSE FALSE
+[5,] TRUE FALSE FALSE FALSE FALSE
+> print(!observed(5))
+      [,1]  [,2]  [,3]  [,4]  [,5]
+[1,] FALSE FALSE FALSE FALSE FALSE
+[2,] FALSE FALSE FALSE FALSE  TRUE
+[3,] FALSE FALSE FALSE  TRUE  TRUE
+[4,] FALSE FALSE  TRUE  TRUE  TRUE
+[5,] FALSE  TRUE  TRUE  TRUE  TRUE
+> 
+> ## fully observed run-off triangle with typically unknown (future) payments
+> ## included in the lower-right triangular part for evaluation purposes
+> data(CameronMutual) ## the full data matrix
+> observed(CameronMutual) ## cummulative run-off triangle
+      dev
+origin    1     2     3     4     5     6     7     8     9    10
+    1  5244  9228 10823 11352 11791 12082 12120 12199 12215 12215
+    2  5984  9939 11725 12346 12746 12909 13034 13109 13113    NA
+    3  7452 12421 14171 14752 15066 15354 15637 15720    NA    NA
+    4  7115 11117 12488 13274 13662 13859 13872    NA    NA    NA
+    5  5753  8969  9917 10697 11135 11282    NA    NA    NA    NA
+    6  3937  6524  7989  8543  8757    NA    NA    NA    NA    NA
+    7  5127  8212  8976  9325    NA    NA    NA    NA    NA    NA
+    8  5046  8006  8984    NA    NA    NA    NA    NA    NA    NA
+    9  5129  8202    NA    NA    NA    NA    NA    NA    NA    NA
+    10 3689    NA    NA    NA    NA    NA    NA    NA    NA    NA
+> observed(CameronMutual, cum = FALSE) ## incremental run-off triangle
+      dev
+origin    1    2    3   4   5   6   7  8  9 10
+    1  5244 3984 1595 529 439 291  38 79 16  0
+    2  5984 3955 1786 621 400 163 125 75  4 NA
+    3  7452 4969 1750 581 314 288 283 83 NA NA
+    4  7115 4002 1371 786 388 197  13 NA NA NA
+    5  5753 3216  948 780 438 147  NA NA NA NA
+    6  3937 2587 1465 554 214  NA  NA NA NA NA
+    7  5127 3085  764 349  NA  NA  NA NA NA NA
+    8  5046 2960  978  NA  NA  NA  NA NA NA NA
+    9  5129 3073   NA  NA  NA  NA  NA NA NA NA
+    10 3689   NA   NA  NA  NA  NA  NA NA NA NA
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("observed", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("parallelReserve")
+> ### * parallelReserve
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: parallelReserve
+> ### Title: Parallel Based Development Profile Reserve
+> ### Aliases: parallelReserve
+> 
+> ### ** Examples
+> 
+> ## run-off (upper-left) triangle with NA values (bottom-right part)
+> data(MW2014, package = "ChainLadder")
+> print(MW2014) 
+      dev
+origin     0     1     2     3     4     5     6     7     8     9    10    11
+    1  13109 20355 21337 22043 22401 22658 22997 23158 23492 23664 23699 23904
+    2  14457 22038 22627 23114 23238 23312 23440 23490 23964 23976 24048 24111
+    3  16075 22672 23753 24052 24206 24757 24786 24807 24823 24888 24986 25401
+    4  15682 23464 24465 25052 25529 25708 25752 25770 25835 26075 26082 26146
+    5  16551 23706 24627 25573 26046 26115 26283 26481 26701 26718 26724 26728
+    6  15439 23796 24866 25317 26139 26154 26175 26205 26764 26818 26836 26959
+    7  14629 21645 22826 23599 24992 25434 25476 25549 25604 25709 25723    NA
+    8  17585 26288 27623 27939 28335 28638 28715 28759 29525 30302    NA    NA
+    9  17419 25941 27066 27761 28043 28477 28721 28878 28948    NA    NA    NA
+    10 16665 25370 26909 27611 27729 27861 29830 29844    NA    NA    NA    NA
+    11 15471 23745 25117 26378 26971 27396 27480    NA    NA    NA    NA    NA
+    12 15103 23393 26809 27691 28061 29183    NA    NA    NA    NA    NA    NA
+    13 14540 22642 23571 24127 24210    NA    NA    NA    NA    NA    NA    NA
+    14 14590 22336 23440 24029    NA    NA    NA    NA    NA    NA    NA    NA
+    15 13967 21515 22603    NA    NA    NA    NA    NA    NA    NA    NA    NA
+    16 12930 20111    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+    17 12539    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+      dev
+origin    12    13    14    15    16
+    1  23960 23992 23994 24001 24002
+    2  24252 24538 24540 24550    NA
+    3  25681 25705 25732    NA    NA
+    4  26150 26167    NA    NA    NA
+    5  26735    NA    NA    NA    NA
+    6     NA    NA    NA    NA    NA
+    7     NA    NA    NA    NA    NA
+    8     NA    NA    NA    NA    NA
+    9     NA    NA    NA    NA    NA
+    10    NA    NA    NA    NA    NA
+    11    NA    NA    NA    NA    NA
+    12    NA    NA    NA    NA    NA
+    13    NA    NA    NA    NA    NA
+    14    NA    NA    NA    NA    NA
+    15    NA    NA    NA    NA    NA
+    16    NA    NA    NA    NA    NA
+    17    NA    NA    NA    NA    NA
+> parallelReserve(MW2014, residuals = TRUE)
+PARALLAX Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                25385                454502                429117 
+         True Reserve 
+                   NA 
+
+PARALLAX method (functional profile completion)
+13109 	20355 	21337 	22043 	22401 	22658 	22997 	23158 	23492 	23664 	23699 	23904 	23960 	23992 	23994 	24001 	24002 	
+14457 	22038 	22627 	23114 	23238 	23312 	23440 	23490 	23964 	23976 	24048 	24111 	24252 	24538 	24540 	24550 	24551 	
+16075 	22672 	23753 	24052 	24206 	24757 	24786 	24807 	24823 	24888 	24986 	25401 	25681 	25705 	25732 	25742 	25743 	
+15682 	23464 	24465 	25052 	25529 	25708 	25752 	25770 	25835 	26075 	26082 	26146 	26150 	26167 	26194 	26204 	26205 	
+16551 	23706 	24627 	25573 	26046 	26115 	26283 	26481 	26701 	26718 	26724 	26728 	26735 	26752 	26779 	26789 	26790 	
+15439 	23796 	24866 	25317 	26139 	26154 	26175 	26205 	26764 	26818 	26836 	26959 	26966 	26983 	27010 	27020 	27021 	
+14629 	21645 	22826 	23599 	24992 	25434 	25476 	25549 	25604 	25709 	25723 	25787 	25791 	25815 	25842 	25852 	25853 	
+17585 	26288 	27623 	27939 	28335 	28638 	28715 	28759 	29525 	30302 	30320 	30443 	30450 	30467 	30494 	30504 	30505 	
+17419 	25941 	27066 	27761 	28043 	28477 	28721 	28878 	28948 	29725 	29743 	29866 	29873 	29890 	29917 	29927 	29928 	
+16665 	25370 	26909 	27611 	27729 	27861 	29830 	29844 	29914 	30691 	30709 	30832 	30839 	30856 	30883 	30893 	30894 	
+15471 	23745 	25117 	26378 	26971 	27396 	27480 	27678 	28444 	29221 	29239 	29362 	29369 	29386 	29413 	29423 	29424 	
+15103 	23393 	26809 	27691 	28061 	29183 	29260 	29417 	29487 	30264 	30282 	30405 	30412 	30429 	30456 	30466 	30467 	
+14540 	22642 	23571 	24127 	24210 	24761 	24790 	24811 	24827 	24892 	24990 	25405 	25685 	25709 	25736 	25746 	25747 	
+14590 	22336 	23440 	24029 	24183 	24734 	24763 	24784 	24800 	24865 	24963 	25378 	25658 	25682 	25709 	25719 	25720 	
+13967 	21515 	22603 	23090 	23214 	23288 	23416 	23466 	23940 	23952 	24024 	24087 	24228 	24514 	24516 	24526 	24527 	
+12930 	20111 	21093 	21799 	22157 	22414 	22753 	22914 	23248 	23420 	23455 	23660 	23716 	23748 	23750 	23757 	23758 	
+12539 	19720 	20702 	21408 	21766 	22023 	22362 	22523 	22857 	23029 	23064 	23269 	23325 	23357 	23359 	23366 	23367 	
+> 
+> ## completed run-off triangle with 'unknown' truth (lower-bottom part)  
+> ## for the estimation purposes only the upper-left triangle is used 
+> data(CameronMutual)
+> parallelReserve(CameronMutual, residuals = TRUE)
+PARALLAX Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                 8540                113699                105159 
+         True Reserve 
+                 7963 
+
+PARALLAX method (functional profile completion)
+5244 	 9228 	10823 	11352 	11791 	12082 	12120 	12199 	12215 	12215 	
+5984 	 9939 	11725 	12346 	12746 	12909 	13034 	13109 	13113 	13113 	
+7452 	12421 	14171 	14752 	15066 	15354 	15637 	15720 	15724 	15724 	
+7115 	11117 	12488 	13274 	13662 	13859 	13872 	13947 	13951 	13951 	
+5753 	 8969 	 9917 	10697 	11135 	11282 	11320 	11399 	11415 	11415 	
+3937 	 6524 	 7989 	 8543 	 8757 	 8904 	 8942 	 9021 	 9037 	 9037 	
+5127 	 8212 	 8976 	 9325 	 9539 	 9686 	 9724 	 9803 	 9819 	 9819 	
+5046 	 8006 	 8984 	 9333 	 9547 	 9694 	 9732 	 9811 	 9827 	 9827 	
+5129 	 8202 	 8966 	 9315 	 9529 	 9676 	 9714 	 9793 	 9809 	 9809 	
+3689 	 6276 	 7741 	 8295 	 8509 	 8656 	 8694 	 8773 	 8789 	 8789 	
+> 
+> ## the previous output is identical (in term of the reserve prediction) 
+> ## but back-fitted residuals are provided in the output instead 
+> print(observed(CameronMutual))
+      dev
+origin    1     2     3     4     5     6     7     8     9    10
+    1  5244  9228 10823 11352 11791 12082 12120 12199 12215 12215
+    2  5984  9939 11725 12346 12746 12909 13034 13109 13113    NA
+    3  7452 12421 14171 14752 15066 15354 15637 15720    NA    NA
+    4  7115 11117 12488 13274 13662 13859 13872    NA    NA    NA
+    5  5753  8969  9917 10697 11135 11282    NA    NA    NA    NA
+    6  3937  6524  7989  8543  8757    NA    NA    NA    NA    NA
+    7  5127  8212  8976  9325    NA    NA    NA    NA    NA    NA
+    8  5046  8006  8984    NA    NA    NA    NA    NA    NA    NA
+    9  5129  8202    NA    NA    NA    NA    NA    NA    NA    NA
+    10 3689    NA    NA    NA    NA    NA    NA    NA    NA    NA
+> parallelReserve(observed(CameronMutual), residuals = TRUE)
+PARALLAX Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                 8540                113699                105159 
+         True Reserve 
+                   NA 
+
+PARALLAX method (functional profile completion)
+5244 	 9228 	10823 	11352 	11791 	12082 	12120 	12199 	12215 	12215 	
+5984 	 9939 	11725 	12346 	12746 	12909 	13034 	13109 	13113 	13113 	
+7452 	12421 	14171 	14752 	15066 	15354 	15637 	15720 	15724 	15724 	
+7115 	11117 	12488 	13274 	13662 	13859 	13872 	13947 	13951 	13951 	
+5753 	 8969 	 9917 	10697 	11135 	11282 	11320 	11399 	11415 	11415 	
+3937 	 6524 	 7989 	 8543 	 8757 	 8904 	 8942 	 9021 	 9037 	 9037 	
+5127 	 8212 	 8976 	 9325 	 9539 	 9686 	 9724 	 9803 	 9819 	 9819 	
+5046 	 8006 	 8984 	 9333 	 9547 	 9694 	 9732 	 9811 	 9827 	 9827 	
+5129 	 8202 	 8966 	 9315 	 9529 	 9676 	 9714 	 9793 	 9809 	 9809 	
+3689 	 6276 	 7741 	 8295 	 8509 	 8656 	 8694 	 8773 	 8789 	 8789 	
+> 
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("parallelReserve", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("permuteReserve")
+> ### * permuteReserve
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: permuteReserve
+> ### Title: Permutation Bootstrap Reserve (PARALLAX, REACT, MACRAME)
+> ### Aliases: permuteReserve
+> 
+> ### ** Examples
+> 
+> ## REACT algorithm and the permutation bootstrap reserve 
+> data(CameronMutual)
+> output <- parallelReserve(CameronMutual, method = "react")
+> summary(permuteReserve(output, B = 100))
+REACT based reserve prediction (with B = 100 bootstrap permutations)
+      First Latest Dev.To.Date Ultimate IBNR         S.E        CV
+2      5984  13113   1.0000000    13113    0    0.000000       NaN
+3      7452  15720   0.9997456    15724    4    4.513095 1.1282737
+4      7115  13872   0.9937675    13959   87   27.117422 0.3116945
+5      5753  11282   0.9912142    11382  100   95.156655 0.9515665
+6      3937   8757   0.9725677     9004  247  105.855189 0.4285635
+7      5127   9325   0.9528919     9786  461  122.623092 0.2659937
+8      5046   8984   0.9172963     9794  810  162.867163 0.2010706
+9      5129   8202   0.8210210     9990 1788  363.494687 0.2032968
+10     3689   3689   0.4314620     8550 4861  580.604753 0.1194414
+total 49232  92944   0.9174942   101302 8358 1033.035743 0.1235984
+
+Overall reserve distribution
+     Boot.Mean        Std.Er.       BootCov%    BootVar.995 
+  10383.317226    1033.035743       9.948995       1.239170 
+
+The REACT predicted reserve represents the 0.99% quantile of the reserve distribution
+Bootstrap simulated reserves beyond 2σ rule: 2 (out of 100)
+
+> 
+> ## MACRAME algorithm with a pre-specified number of states using the same MC 
+> ## states and the same break for each permuted run-off triangle
+> output <- mcReserve(CameronMutual, states = 5)
+> plot(permuteReserve(output, B = 100, adjustMC = FALSE))
+> 
+> ## Permutation bootstrap applied to a completed run-off triangle 
+> ## obtained by a parametric Over-dispersed Poisson model (from ChainLadder pkg)
+> library("ChainLadder")
+
+Welcome to ChainLadder version 0.2.12
+
+To cite package ‘ChainLadder’ in publications use:
+
+  Markus Gesmann, Daniel Murphy, Yanwei (Wayne) Zhang, Alessandro
+  Carrato, Mario Wuthrich, Fabio Concina and Eric Dal Moro (2021).
+  ChainLadder: Statistical Methods and Models for Claims Reserving in
+  General Insurance. R package version 0.2.12.
+  https://CRAN.R-project.org/package=ChainLadder
+
+To suppress this message use:
+suppressPackageStartupMessages(library(ChainLadder))
+
+> output <- permuteReserve(glmReserve(MW2008), B = 100)
+> summary(output, triangle.summary = TRUE)
+GLM based reserve prediction (with B = 100 bootstrap permutations)
+         First   Latest Dev.To.Date Ultimate    IBNR        S.E         CV
+2      2350650  3902425   0.9988794  3906803    4378   130.4311 0.02979240
+3      2321885  3898825   0.9976083  3908172    9347   423.9108 0.04535260
+4      2171487  3548422   0.9920622  3576814   28392  1255.1899 0.04420928
+5      2140328  3585812   0.9858561  3637257   51445  2866.9891 0.05572921
+6      2290664  3641036   0.9702064  3752847  111811  5508.1313 0.04926288
+7      2148216  3428335   0.9482539  3615419  187084  9009.5538 0.04815780
+8      2143728  3158581   0.8846463  3570445  411864 16453.0907 0.03994787
+9      2144738  2144738   0.5993830  3578243 1433505 55886.4170 0.03898585
+total 17711696 27308174   0.9242596 29546000 2237826 52812.5526 0.02359994
+
+Overall reserve distribution
+     Boot.Mean        Std.Er.       BootCov%    BootVar.995 
+  2.304199e+06   5.281255e+04   2.292013e+00   1.045760e+00 
+
+The GLM predicted reserve represents the 5.94% quantile of the reserve distribution
+Bootstrap simulated reserves beyond 2σ rule: 1 (out of 100)
+
+Summary of the permuted run-off triangles (First, Latest, Ultimate)
+         Boot.Firsts (Std.Er) Boot.Latests  (Std.Er) Boot.Ultimates (Std.Err)
+origin 1     2215887 83997.76      3685832 148309.51        3685832  148309.5
+origin 2     2203496 73145.10      3685891 116235.31        3690025  116365.7
+origin 3     2212000 75495.75      3707784 135881.95        3716659  136242.8
+origin 4     2217066 82708.16      3629451 130021.30        3658496  131039.4
+origin 5     2226357 83355.34      3708357 156428.31        3761712  158690.0
+origin 6     2199410 77696.90      3505913 118651.05        3614142  122417.4
+origin 7     2214719 78435.75      3533909 126508.65        3727172  133445.4
+origin 8     2206859 80048.88      3252362 117359.70        3676262  132897.2
+origin 9     2218486 84491.14      2218486  84491.14        3701884  140240.9
+
+> 
+> 
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("permuteReserve", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+
+detaching ‘package:ChainLadder’
+
+> nameEx("plot.mcSetup")
+> ### * plot.mcSetup
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: plot.mcSetup
+> ### Title: Visualization of the Run-Off Triangle Increments for the Markov
+> ###   Chain
+> ### Aliases: plot.mcSetup
+> 
+> ### ** Examples
+> 
+> ## run-off triangle increments within the default bins
+> x <- incrExplor(CameronMutual)
+> plot(x)
+> 
+> ## run-off triangle increments and user-defined number of bins
+> x <- incrExplor(CameronMutual, states = 5)
+> plot(x)
+> 
+> ## run-off triangle increments within the user-specified bins
+> x <- incrExplor(CameronMutual, breaks = c(500, 1000, 1500))
+> plot(x)
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("plot.mcSetup", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("plot.permutedReserve")
+> ### * plot.permutedReserve
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: plot.permutedReserve
+> ### Title: Plotting the Output of the Permutation Bootstrap
+> ### Aliases: plot.permutedReserve
+> 
+> ### ** Examples
+> 
+> ## reserve estimated by MACRAME and the corresponding visualization
+> x <- mcReserve(CameronMutual)
+> plot(permuteReserve(x, B = 100))
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("plot.permutedReserve", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("plot.profileLadder")
+> ### * plot.profileLadder
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: plot.profileLadder
+> ### Title: Plotting Development Profiles
+> ### Aliases: plot.profileLadder
+> 
+> ### ** Examples
+> 
+> ## completed run-off triangle with the 'unknown' (future) payments
+> print(triangle <- GFCIB$bodilyInjury[1:15, 1:15])
+         dev
+origin       1    2    3     4     5     6     7     8     9    10    11    12
+  2008_Q1  210 2040 3735  5633  7425  9307 10657 11803 12593 13359 13558 14168
+  2008_Q2  628 2610 4394  7260  8562 10370 11083 14087 16116 16205 16252 16400
+  2008_Q3  828 6064 9962 15918 16728 17788 18866 19317 20651 21024 21768 24789
+  2008_Q4  642 3174 5733  7300 10183 11389 12965 13201 13477 13888 14825 15295
+  2009_Q1  686 1831 2558  3576  3956  4429  4897  5185  5410  5466  5939  5953
+  2009_Q2  429 2968 4734  6656  8479  9524 10085 11894 12384 13470 13681 14113
+  2009_Q3  435 1994 5136  8318  9542 10834 12348 13904 14658 15644 15966 16215
+  2009_Q4 1319 4062 7117  9160 11955 15795 18500 22596 23239 23791 24848 24885
+  2010_Q1  250 1533 2566  2838  3381  3457  3546  3618  3788  4226  4278  4288
+  2010_Q2 1264 2303 3346  5017  5905  7031  7495  8023  8256  8406  8927  9845
+  2010_Q3 1032 2736 5216  7491 11314 12614 13193 19440 19896 20387 20979 21069
+  2010_Q4  806 2607 4811  5973  6988  9749 10335 10551 13202 13721 13736 14039
+  2011_Q1  674 1317 1864  2308  2546  2732  2781  3025  3035  3065  3246  3313
+  2011_Q2  633 1680 3525  4424  5889  8475  9197  9879 10099 11027 11207 20216
+  2011_Q3 2368 5186 6896  7601  9947 11374 12048 12397 12752 13907 15568 16946
+         dev
+origin       13    14    15
+  2008_Q1 14482 14604 15157
+  2008_Q2 16568 17202 19003
+  2008_Q3 25186 25704 25956
+  2008_Q4 16709 18926 19748
+  2009_Q1  5984  5987  6115
+  2009_Q2 14191 14505 14820
+  2009_Q3 17311 18352 18808
+  2009_Q4 25804 26195 26195
+  2010_Q1  4288  4288  4296
+  2010_Q2  9896 10315 10501
+  2010_Q3 22559 23164 23526
+  2010_Q4 14295 14718 14760
+  2011_Q1  3340  3354  3354
+  2011_Q2 20466 20486 21614
+  2011_Q3 17043 17045 17168
+> plot(mcReserve(triangle))
+> 
+> ## completed run-off triangle with unknown future
+> print(observed(triangle))
+         dev
+origin       1    2    3     4     5     6     7     8     9    10    11    12
+  2008_Q1  210 2040 3735  5633  7425  9307 10657 11803 12593 13359 13558 14168
+  2008_Q2  628 2610 4394  7260  8562 10370 11083 14087 16116 16205 16252 16400
+  2008_Q3  828 6064 9962 15918 16728 17788 18866 19317 20651 21024 21768 24789
+  2008_Q4  642 3174 5733  7300 10183 11389 12965 13201 13477 13888 14825 15295
+  2009_Q1  686 1831 2558  3576  3956  4429  4897  5185  5410  5466  5939    NA
+  2009_Q2  429 2968 4734  6656  8479  9524 10085 11894 12384 13470    NA    NA
+  2009_Q3  435 1994 5136  8318  9542 10834 12348 13904 14658    NA    NA    NA
+  2009_Q4 1319 4062 7117  9160 11955 15795 18500 22596    NA    NA    NA    NA
+  2010_Q1  250 1533 2566  2838  3381  3457  3546    NA    NA    NA    NA    NA
+  2010_Q2 1264 2303 3346  5017  5905  7031    NA    NA    NA    NA    NA    NA
+  2010_Q3 1032 2736 5216  7491 11314    NA    NA    NA    NA    NA    NA    NA
+  2010_Q4  806 2607 4811  5973    NA    NA    NA    NA    NA    NA    NA    NA
+  2011_Q1  674 1317 1864    NA    NA    NA    NA    NA    NA    NA    NA    NA
+  2011_Q2  633 1680   NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+  2011_Q3 2368   NA   NA    NA    NA    NA    NA    NA    NA    NA    NA    NA
+         dev
+origin       13    14    15
+  2008_Q1 14482 14604 15157
+  2008_Q2 16568 17202    NA
+  2008_Q3 25186    NA    NA
+  2008_Q4    NA    NA    NA
+  2009_Q1    NA    NA    NA
+  2009_Q2    NA    NA    NA
+  2009_Q3    NA    NA    NA
+  2009_Q4    NA    NA    NA
+  2010_Q1    NA    NA    NA
+  2010_Q2    NA    NA    NA
+  2010_Q3    NA    NA    NA
+  2010_Q4    NA    NA    NA
+  2011_Q1    NA    NA    NA
+  2011_Q2    NA    NA    NA
+  2011_Q3    NA    NA    NA
+> plot(mcReserve(observed(triangle)))
+> 
+> ## the run-off triangle with future payments without MACRAME completion
+> plot(as.profileLadder(triangle))
+> 
+> 
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("plot.profileLadder", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("print.mcSetup")
+> ### * print.mcSetup
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: print.mcSetup
+> ### Title: Print Objects of the S3 Class 'mcSetup'
+> ### Aliases: print.mcSetup
+> 
+> ### ** Examples
+> 
+> data(CameronMutual)
+> x <- incrExplor(CameronMutual)
+> print(x) 
+Data-driven (default) setting of the Markov Chain in MACRAME
+MC States: 13 81 197 302.5 438 601 948 1672.5 3073 3993
+
+Corresponding bins for the run-off triangle increments
+ [1] "[-Inf, 75)"   "[75, 147)"    "[147, 288)"   "[288, 388)"   "[388, 554)"  
+ [6] "[554, 780)"   "[780, 1465)"  "[1465, 2587)" "[2587, 3955)" "[3955, Inf)" 
+
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("print.mcSetup", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("print.permutedReserve")
+> ### * print.permutedReserve
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: print.permutedReserve
+> ### Title: Print Objects of the S3 Class 'permutedReserve'
+> ### Aliases: print.permutedReserve
+> 
+> ### ** Examples
+> 
+> ## reserve point prediction by the PARALLAX method
+> output <- parallelReserve(CameronMutual)
+> 
+> ## reserve distribution prediction by the permutation bootstrap
+> x <- permuteReserve(output, B = 100)
+> 
+> ## summary of the results
+> print(x) 
+PARALLAX based reserving
+    Est.Reserve    Est.Ultimate     Paid Amount    True Reserve 
+           8540          113699          105159            7963 
+Permutation bootstrap (B = 100)
+     Boot.Mean        Std.Er.       BootCov%    BootVar.995 
+      9136.135        842.793          9.225          1.202 
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("print.permutedReserve", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("print.profileLadder")
+> ### * print.profileLadder
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: print.profileLadder
+> ### Title: Print Objects of the S3 Class 'profileLadder'
+> ### Aliases: print.profileLadder
+> 
+> ### ** Examples
+> 
+> data(CameronMutual)
+> ## full run-off triangle printed with the fancy mode
+> x <- as.profileLadder(CameronMutual)
+> print(x) 
+Run-off Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                   NA                    NA                105159 
+         True Reserve 
+                 7963 
+
+Run-off triangle (complete/fully observed)
+5244 	 9228 	10823 	11352 	11791 	12082 	12120 	12199 	12215 	12215 	
+5984 	 9939 	11725 	12346 	12746 	12909 	13034 	13109 	13113 	13115 	
+7452 	12421 	14171 	14752 	15066 	15354 	15637 	15720 	15744 	15786 	
+7115 	11117 	12488 	13274 	13662 	13859 	13872 	13935 	13973 	13972 	
+5753 	 8969 	 9917 	10697 	11135 	11282 	11255 	11331 	11332 	11354 	
+3937 	 6524 	 7989 	 8543 	 8757 	 8901 	 9013 	 9012 	 9046 	 9164 	
+5127 	 8212 	 8976 	 9325 	 9718 	 9795 	 9833 	 9885 	 9816 	 9815 	
+5046 	 8006 	 8984 	 9633 	10102 	10166 	10261 	10252 	10252 	10252 	
+5129 	 8202 	 9185 	 9681 	 9951 	10033 	10133 	10182 	10182 	10183 	
+3689 	 6043 	 6789 	 7089 	 7164 	 7197 	 7253 	 7267 	 7266 	 7266 	
+> 
+> ## run-off triangle with unobserved future payments 
+> x <- as.profileLadder(observed(CameronMutual))
+> print(x) 
+Run-off Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                   NA                    NA                105159 
+         True Reserve 
+                   NA 
+
+Run-off triangle
+5244 	 9228 	10823 	11352 	11791 	12082 	12120 	12199 	12215 	12215 	
+5984 	 9939 	11725 	12346 	12746 	12909 	13034 	13109 	13113 	    . 	
+7452 	12421 	14171 	14752 	15066 	15354 	15637 	15720 	    . 	    . 	
+7115 	11117 	12488 	13274 	13662 	13859 	13872 	    . 	    . 	    . 	
+5753 	 8969 	 9917 	10697 	11135 	11282 	    . 	    . 	    . 	    . 	
+3937 	 6524 	 7989 	 8543 	 8757 	    . 	    . 	    . 	    . 	    . 	
+5127 	 8212 	 8976 	 9325 	    . 	    . 	    . 	    . 	    . 	    . 	
+5046 	 8006 	 8984 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	
+5129 	 8202 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	
+3689 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	
+> 
+> ## the same run-off triangle using a standard printing method 
+> options(profileLadder.fancy = FALSE)
+> print(x)
+Run-off Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                   NA                    NA                105159 
+         True Reserve 
+                   NA 
+
+Run-off triangle
+      dev
+origin    1     2     3     4     5     6     7     8     9    10
+    1  5244  9228 10823 11352 11791 12082 12120 12199 12215 12215
+    2  5984  9939 11725 12346 12746 12909 13034 13109 13113    NA
+    3  7452 12421 14171 14752 15066 15354 15637 15720    NA    NA
+    4  7115 11117 12488 13274 13662 13859 13872    NA    NA    NA
+    5  5753  8969  9917 10697 11135 11282    NA    NA    NA    NA
+    6  3937  6524  7989  8543  8757    NA    NA    NA    NA    NA
+    7  5127  8212  8976  9325    NA    NA    NA    NA    NA    NA
+    8  5046  8006  8984    NA    NA    NA    NA    NA    NA    NA
+    9  5129  8202    NA    NA    NA    NA    NA    NA    NA    NA
+    10 3689    NA    NA    NA    NA    NA    NA    NA    NA    NA
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("print.profileLadder", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("set.fancy.print")
+> ### * set.fancy.print
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: set.fancy.print
+> ### Title: Set Custom Color Styles for 'profileLadder' Output
+> ### Aliases: set.fancy.print
+> 
+> ### ** Examples
+> 
+> ## fancy print option for the run-off triangle 
+> print(as.profileLadder(observed(CameronMutual)), fancy.print = TRUE)
+Run-off Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                   NA                    NA                105159 
+         True Reserve 
+                   NA 
+
+Run-off triangle
+5244 	 9228 	10823 	11352 	11791 	12082 	12120 	12199 	12215 	12215 	
+5984 	 9939 	11725 	12346 	12746 	12909 	13034 	13109 	13113 	    . 	
+7452 	12421 	14171 	14752 	15066 	15354 	15637 	15720 	    . 	    . 	
+7115 	11117 	12488 	13274 	13662 	13859 	13872 	    . 	    . 	    . 	
+5753 	 8969 	 9917 	10697 	11135 	11282 	    . 	    . 	    . 	    . 	
+3937 	 6524 	 7989 	 8543 	 8757 	    . 	    . 	    . 	    . 	    . 	
+5127 	 8212 	 8976 	 9325 	    . 	    . 	    . 	    . 	    . 	    . 	
+5046 	 8006 	 8984 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	
+5129 	 8202 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	
+3689 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	    . 	
+> 
+> ## standard print option for the run-off triangle
+> print(as.profileLadder(observed(CameronMutual)), fancy.print = FALSE)
+Run-off Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                   NA                    NA                105159 
+         True Reserve 
+                   NA 
+
+Run-off triangle
+      dev
+origin    1     2     3     4     5     6     7     8     9    10
+    1  5244  9228 10823 11352 11791 12082 12120 12199 12215 12215
+    2  5984  9939 11725 12346 12746 12909 13034 13109 13113    NA
+    3  7452 12421 14171 14752 15066 15354 15637 15720    NA    NA
+    4  7115 11117 12488 13274 13662 13859 13872    NA    NA    NA
+    5  5753  8969  9917 10697 11135 11282    NA    NA    NA    NA
+    6  3937  6524  7989  8543  8757    NA    NA    NA    NA    NA
+    7  5127  8212  8976  9325    NA    NA    NA    NA    NA    NA
+    8  5046  8006  8984    NA    NA    NA    NA    NA    NA    NA
+    9  5129  8202    NA    NA    NA    NA    NA    NA    NA    NA
+    10 3689    NA    NA    NA    NA    NA    NA    NA    NA    NA
+> 
+> ## PARALLAX based run-off triangle completion (fancy print)
+> options(profileLadder.fancy = TRUE)
+> parallelReserve(CameronMutual)
+PARALLAX Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                 8540                113699                105159 
+         True Reserve 
+                 7963 
+
+PARALLAX method (functional profile completion)
+5244 	 9228 	10823 	11352 	11791 	12082 	12120 	12199 	12215 	12215 	
+5984 	 9939 	11725 	12346 	12746 	12909 	13034 	13109 	13113 	13113 	
+7452 	12421 	14171 	14752 	15066 	15354 	15637 	15720 	15724 	15724 	
+7115 	11117 	12488 	13274 	13662 	13859 	13872 	13947 	13951 	13951 	
+5753 	 8969 	 9917 	10697 	11135 	11282 	11320 	11399 	11415 	11415 	
+3937 	 6524 	 7989 	 8543 	 8757 	 8904 	 8942 	 9021 	 9037 	 9037 	
+5127 	 8212 	 8976 	 9325 	 9539 	 9686 	 9724 	 9803 	 9819 	 9819 	
+5046 	 8006 	 8984 	 9333 	 9547 	 9694 	 9732 	 9811 	 9827 	 9827 	
+5129 	 8202 	 8966 	 9315 	 9529 	 9676 	 9714 	 9793 	 9809 	 9809 	
+3689 	 6276 	 7741 	 8295 	 8509 	 8656 	 8694 	 8773 	 8789 	 8789 	
+> 
+> ## PARALLAX based run-off triangle completion (standard print)
+> options(profileLadder.fancy = FALSE)
+> parallelReserve(CameronMutual)
+PARALLAX Reserving 
+    Estimated Reserve    Estimated Ultimate           Paid Amount 
+                 8540                113699                105159 
+         True Reserve 
+                 7963 
+
+PARALLAX method (functional profile completion)
+      dev
+origin    1     2     3     4     5     6     7     8     9    10
+    1  5244  9228 10823 11352 11791 12082 12120 12199 12215 12215
+    2  5984  9939 11725 12346 12746 12909 13034 13109 13113 13113
+    3  7452 12421 14171 14752 15066 15354 15637 15720 15724 15724
+    4  7115 11117 12488 13274 13662 13859 13872 13947 13951 13951
+    5  5753  8969  9917 10697 11135 11282 11320 11399 11415 11415
+    6  3937  6524  7989  8543  8757  8904  8942  9021  9037  9037
+    7  5127  8212  8976  9325  9539  9686  9724  9803  9819  9819
+    8  5046  8006  8984  9333  9547  9694  9732  9811  9827  9827
+    9  5129  8202  8966  9315  9529  9676  9714  9793  9809  9809
+    10 3689  6276  7741  8295  8509  8656  8694  8773  8789  8789
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("set.fancy.print", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("summary.mcSetup")
+> ### * summary.mcSetup
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: summary.mcSetup
+> ### Title: Summary Method for the S3 Class Object 'mcSetup'
+> ### Aliases: summary.mcSetup
+> 
+> ### ** Examples
+> 
+> data(CameronMutual)
+> summary(CameronMutual)
+       1              2               3               4               5        
+ Min.   :3689   Min.   : 6043   Min.   : 6789   Min.   : 7089   Min.   : 7164  
+ 1st Qu.:5066   1st Qu.: 8055   1st Qu.: 8978   1st Qu.: 9402   1st Qu.: 9776  
+ Median :5186   Median : 8590   Median : 9551   Median :10189   Median :10618  
+ Mean   :5448   Mean   : 8866   Mean   :10105   Mean   :10669   Mean   :11009  
+ 3rd Qu.:5926   3rd Qu.: 9761   3rd Qu.:11500   3rd Qu.:12098   3rd Qu.:12507  
+ Max.   :7452   Max.   :12421   Max.   :14171   Max.   :14752   Max.   :15066  
+       6               7               8               9        
+ Min.   : 7197   Min.   : 7253   Min.   : 7267   Min.   : 7266  
+ 1st Qu.: 9854   1st Qu.: 9908   1st Qu.: 9959   1st Qu.: 9908  
+ Median :10724   Median :10758   Median :10792   Median :10792  
+ Mean   :11158   Mean   :11241   Mean   :11289   Mean   :11294  
+ 3rd Qu.:12702   3rd Qu.:12806   3rd Qu.:12882   3rd Qu.:12888  
+ Max.   :15354   Max.   :15637   Max.   :15720   Max.   :15744  
+       10       
+ Min.   : 7266  
+ 1st Qu.: 9907  
+ Median :10803  
+ Mean   :11312  
+ 3rd Qu.:12890  
+ Max.   :15786  
+> 
+> ## default summary output
+> summary(incrExplor(CameronMutual))
+Input triangle type: Cumulative
+Summary of the increments
+                Min   1st Q.   Median      Mean   3rd Q.  Max   Std.Er.
+Raw increments    0 197.0000 529.0000 1126.0000 1595.000 4969 1340.0000
+Std. increments   0   0.0396   0.1065    0.2267    0.321    1    0.2697
+
+Total number of increments: 45,  Total number of unique increments: 45
+Number of suspicious increments (using 2σ rule): 8,  Outliers (3σ rule): 1
+
+Data-driven bins for the run-off triangle increments
+ [1] "[-Inf, 75)"   "[75, 147)"    "[147, 288)"   "[288, 388)"   "[388, 554)"  
+ [6] "[554, 780)"   "[780, 1465)"  "[1465, 2587)" "[2587, 3955)" "[3955, Inf)" 
+
+Markov Chain states (medians of the increments within each bin)
+ [1]   13.0   81.0  197.0  302.5  438.0  601.0  948.0 1672.5 3073.0 3993.0
+> 
+> ## summary output for user-modified settings
+> summary(incrExplor(CameronMutual, states = 5, method = "mean"))
+Input triangle type: Cumulative
+Summary of the increments (development periods: 2,3,4,5,6,7,8,9,10)
+               Min   1st Q.   Median      Mean   3rd Q.  Max   Std.Er.
+Raw increments   0 197.0000 529.0000 1126.0000 1595.000 4969 1340.0000
+Std.increments   0   0.0396   0.1065    0.2267    0.321    1    0.2697
+
+Total number of increments: 45,  Total number of unique increments: 45
+Number of suspicious increments (using 2σ rule): 4,  Outliers (3σ rule): 0
+
+User-defined bins for the selected run-off triangle increments
+[1] "[-Inf, 147)" "[147, 388)"  "[388, 780)"  "[780, 2587)" "[2587, Inf)"
+
+Markov Chain states (means of the increments within each bin)
+[1]   48.11111  249.55556  523.77778 1273.22222 3536.77778
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("summary.mcSetup", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("summary.permutedReserve")
+> ### * summary.permutedReserve
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: summary.permutedReserve
+> ### Title: Summary Method for the S3 Objects 'permutedReserve'
+> ### Aliases: summary.permutedReserve
+> 
+> ### ** Examples
+> 
+> data(CameronMutual)
+> summary(CameronMutual)
+       1              2               3               4               5        
+ Min.   :3689   Min.   : 6043   Min.   : 6789   Min.   : 7089   Min.   : 7164  
+ 1st Qu.:5066   1st Qu.: 8055   1st Qu.: 8978   1st Qu.: 9402   1st Qu.: 9776  
+ Median :5186   Median : 8590   Median : 9551   Median :10189   Median :10618  
+ Mean   :5448   Mean   : 8866   Mean   :10105   Mean   :10669   Mean   :11009  
+ 3rd Qu.:5926   3rd Qu.: 9761   3rd Qu.:11500   3rd Qu.:12098   3rd Qu.:12507  
+ Max.   :7452   Max.   :12421   Max.   :14171   Max.   :14752   Max.   :15066  
+       6               7               8               9        
+ Min.   : 7197   Min.   : 7253   Min.   : 7267   Min.   : 7266  
+ 1st Qu.: 9854   1st Qu.: 9908   1st Qu.: 9959   1st Qu.: 9908  
+ Median :10724   Median :10758   Median :10792   Median :10792  
+ Mean   :11158   Mean   :11241   Mean   :11289   Mean   :11294  
+ 3rd Qu.:12702   3rd Qu.:12806   3rd Qu.:12882   3rd Qu.:12888  
+ Max.   :15354   Max.   :15637   Max.   :15720   Max.   :15744  
+       10       
+ Min.   : 7266  
+ 1st Qu.: 9907  
+ Median :10803  
+ Mean   :11312  
+ 3rd Qu.:12890  
+ Max.   :15786  
+> 
+> ## summary for the point reserve prediction
+> summary(parallelReserve(CameronMutual))
+PARALLAX reserve prediction (by origins)
+      First Latest Dev.To.Date Ultimate IBNR
+2      5984  13113   1.0000000    13113    0
+3      7452  15720   0.9997456    15724    4
+4      7115  13872   0.9943373    13951   79
+5      5753  11282   0.9883487    11415  133
+6      3937   8757   0.9690163     9037  280
+7      5127   9325   0.9496894     9819  494
+8      5046   8984   0.9142159     9827  843
+9      5129   8202   0.8361709     9809 1607
+10     3689   3689   0.4197292     8789 5100
+total 49232  92944   0.9158488   101484 8540
+
+Overall reserve summary
+    Est.Reserve    Est.Ultimate     Paid Amount    True Reserve        Reserve% 
+        8540.00       113699.00       105159.00         7963.00            7.25 
+
+> 
+> ## summary for the overall reserve distribution
+> summary(permuteReserve(parallelReserve(CameronMutual)))
+PARALLAX based reserve prediction (with B = 500 bootstrap permutations)
+      First Latest Dev.To.Date Ultimate IBNR        S.E         CV
+2      5984  13113   1.0000000    13113    0   0.000000        NaN
+3      7452  15720   0.9997456    15724    4   8.365755 2.09143870
+4      7115  13872   0.9943373    13951   79  27.828653 0.35226144
+5      5753  11282   0.9883487    11415  133  48.080994 0.36151124
+6      3937   8757   0.9690163     9037  280  64.174552 0.22919483
+7      5127   9325   0.9496894     9819  494  91.007434 0.18422557
+8      5046   8984   0.9142159     9827  843 203.027175 0.24083888
+9      5129   8202   0.8361709     9809 1607 520.307464 0.32377565
+10     3689   3689   0.4197292     8789 5100 621.267040 0.12181707
+total 49232  92944   0.9158488   101484 8540 791.431857 0.09267352
+
+Overall reserve distribution
+     Boot.Mean        Std.Er.       BootCov%    BootVar.995 
+   8983.624695     791.431857       8.809716       1.224159 
+
+The PARALLAX predicted reserve represents the 31.14% quantile of the reserve distribution
+Bootstrap simulated reserves beyond 2σ rule: 16 (out of 500)
+
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("summary.permutedReserve", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> cleanEx()
+> nameEx("summary.profileLadder")
+> ### * summary.profileLadder
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: summary.profileLadder
+> ### Title: Summary Method for Objects of the S3 Class Method
+> ###   'profileLadder'
+> ### Aliases: summary.profileLadder
+> 
+> ### ** Examples
+> 
+> data(CameronMutual)
+> summary(CameronMutual)
+       1              2               3               4               5        
+ Min.   :3689   Min.   : 6043   Min.   : 6789   Min.   : 7089   Min.   : 7164  
+ 1st Qu.:5066   1st Qu.: 8055   1st Qu.: 8978   1st Qu.: 9402   1st Qu.: 9776  
+ Median :5186   Median : 8590   Median : 9551   Median :10189   Median :10618  
+ Mean   :5448   Mean   : 8866   Mean   :10105   Mean   :10669   Mean   :11009  
+ 3rd Qu.:5926   3rd Qu.: 9761   3rd Qu.:11500   3rd Qu.:12098   3rd Qu.:12507  
+ Max.   :7452   Max.   :12421   Max.   :14171   Max.   :14752   Max.   :15066  
+       6               7               8               9        
+ Min.   : 7197   Min.   : 7253   Min.   : 7267   Min.   : 7266  
+ 1st Qu.: 9854   1st Qu.: 9908   1st Qu.: 9959   1st Qu.: 9908  
+ Median :10724   Median :10758   Median :10792   Median :10792  
+ Mean   :11158   Mean   :11241   Mean   :11289   Mean   :11294  
+ 3rd Qu.:12702   3rd Qu.:12806   3rd Qu.:12882   3rd Qu.:12888  
+ Max.   :15354   Max.   :15637   Max.   :15720   Max.   :15744  
+       10       
+ Min.   : 7266  
+ 1st Qu.: 9907  
+ Median :10803  
+ Mean   :11312  
+ 3rd Qu.:12890  
+ Max.   :15786  
+> 
+> ## standard summary output
+> summary(mcReserve(CameronMutual))
+MACRAME reserve prediction (by origins)
+      First Latest Dev.To.Date   Ultimate       IBNR
+2      5984  13113   0.9964286  13160.000   47.00000
+3      7452  15720   0.9950067  15798.889   78.88889
+4      7115  13872   0.9906724  14002.611  130.61111
+5      5753  11282   0.9840866  11464.438  182.43827
+6      3937   8757   0.9749940   8981.594  224.59362
+7      5127   9325   0.9535135   9779.620  454.61986
+8      5046   8984   0.8241040  10901.537 1917.53724
+9      5129   8202   0.7664369  10701.468 2499.46806
+10     3689   3689   0.5915835   6235.806 2546.80632
+total 49232  92944   0.9200011 101025.963 8081.96337
+
+Overall reserve summary
+    Est.Reserve    Est.Ultimate     Paid Amount    True Reserve        Reserve% 
+        8081.96       113240.96       105159.00         7963.00            1.49 
+
+> 
+> ## summary output with plotOption = TRUE
+> summary(mcReserve(CameronMutual), plotOption = TRUE)
+MACRAME reserve prediction (by origins)
+      First Latest Dev.To.Date   Ultimate       IBNR
+2      5984  13113   0.9964286  13160.000   47.00000
+3      7452  15720   0.9950067  15798.889   78.88889
+4      7115  13872   0.9906724  14002.611  130.61111
+5      5753  11282   0.9840866  11464.438  182.43827
+6      3937   8757   0.9749940   8981.594  224.59362
+7      5127   9325   0.9535135   9779.620  454.61986
+8      5046   8984   0.8241040  10901.537 1917.53724
+9      5129   8202   0.7664369  10701.468 2499.46806
+10     3689   3689   0.5915835   6235.806 2546.80632
+total 49232  92944   0.9200011 101025.963 8081.96337
+
+Overall reserve summary
+    Est.Reserve    Est.Ultimate     Paid Amount    True Reserve        Reserve% 
+        8081.96       113240.96       105159.00         7963.00            1.49 
+
+> 
+> ## summary output with (standard) residuals and plotOption = TRUE
+> summary(mcReserve(CameronMutual, residuals = TRUE), plotOption = TRUE)
+MACRAME reserve prediction (by origins)
+      First Latest Dev.To.Date   Ultimate       IBNR
+2      5984  13113   0.9964286  13160.000   47.00000
+3      7452  15720   0.9950067  15798.889   78.88889
+4      7115  13872   0.9906724  14002.611  130.61111
+5      5753  11282   0.9840866  11464.438  182.43827
+6      3937   8757   0.9749940   8981.594  224.59362
+7      5127   9325   0.9535135   9779.620  454.61986
+8      5046   8984   0.8241040  10901.537 1917.53724
+9      5129   8202   0.7664369  10701.468 2499.46806
+10     3689   3689   0.5915835   6235.806 2546.80632
+total 49232  92944   0.9200011 101025.963 8081.96337
+
+Overall reserve summary
+    Est.Reserve    Est.Ultimate     Paid Amount    True Reserve        Reserve% 
+        8081.96       113240.96       105159.00         7963.00            1.49 
+
+Residual summary (standard incremental residuals)
+     Min   1st Q.   Median     Mean   3rd Q.      Max  Std.Er. 
+    -237      -63      -44       -3       -8     1312      215 
+
+Total number of residuals: 45,  Total number of unique residuals: 45
+Suspicious residuals (using 2σ rule): 1,  Outliers (3σ rule): 1
+> 
+> ## summary output with (back-fitted) residuals and plotOption = TRUE
+> summary(mcReserve(observed(CameronMutual), residuals = TRUE), plotOption = TRUE)
+MACRAME reserve prediction (by origins)
+      First Latest Dev.To.Date   Ultimate       IBNR
+2      5984  13113   0.9964286  13160.000   47.00000
+3      7452  15720   0.9950067  15798.889   78.88889
+4      7115  13872   0.9906724  14002.611  130.61111
+5      5753  11282   0.9840866  11464.438  182.43827
+6      3937   8757   0.9749940   8981.594  224.59362
+7      5127   9325   0.9535135   9779.620  454.61986
+8      5046   8984   0.8241040  10901.537 1917.53724
+9      5129   8202   0.7664369  10701.468 2499.46806
+10     3689   3689   0.5915835   6235.806 2546.80632
+total 49232  92944   0.9200011 101025.963 8081.96337
+
+Overall reserve summary
+    Est.Reserve    Est.Ultimate     Paid Amount    True Reserve        Reserve% 
+        8081.96       113240.96       105159.00              NA              NA 
+
+Residual summary (backfitted incremental residuals)
+     Min   1st Q.   Median     Mean   3rd Q.      Max  Std.Er. 
+   -6375      -51      113        0      771     4394     2135 
+
+Total number of residuals: 55,  Total number of unique residuals: 55
+Suspicious residuals (using 2σ rule): 4,  Outliers (3σ rule): 0
+> 
+> 
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("summary.profileLadder", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  8.589 0.287 8.895 0.004 0.003 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')
