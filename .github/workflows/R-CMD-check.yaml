@@ -50,7 +50,7 @@ jobs:
       - name: Build package tar.gz
         run: |
           echo "Building package..."
-          R CMD build .
+          Rscript -e "pkgbuild::build(path = '.', dest_path = '.', binary = FALSE)"
           echo "Files after build:"
           ls -l
 

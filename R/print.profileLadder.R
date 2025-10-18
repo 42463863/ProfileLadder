@@ -6,15 +6,19 @@
 #' @param x an object of the class \code{profileLadder} resulting from a call 
 #' of one of the functions \code{parallelReserve()}, \code{mcReserve}, or
 #' \code{as.profileLadder()}
-#' @param fancy.print logical to indicate whether facty run-off triangle should be 
-#' printed or standard output is used instead. The default choice is \code{TRUE}.
-#' Fancy printng output can be supressed by \code{options(profileLadder.fancy = FALSE)}. 
+#' @param fancy.print logical to indicate whether fancy run-off triangle should be 
+#' printed or a standard output should be used instead. The default choice is \code{TRUE}.
+#' Note that that fancy print option uses by DEFAULT zero decimal digits.
+#' Specific colors for the fancy print option and the number of decimal points 
+#' to be used can be set by the function \code{set.fancy.print()}. 
+#' The fancy print option can be supressed by \code{options(profileLadder.fancy = FALSE)}.
+#' 
 #' @param ... further arguments passed to \code{print}
 #' 
 #' @return displays information resulting from a call of the \code{parallelReserve()} 
 #' function or the \code{mcReserve} function
 #' 
-#' @seealso [as.profileLadder()], [parallelReserve()], [mcReserve()]
+#' @seealso [as.profileLadder()], [set.fancy.print()], [parallelReserve()], [mcReserve()]
 #' 
 #' @examples
 #' data(CameronMutual)
@@ -43,9 +47,10 @@ print.profileLadder <- function(x, fancy.print = getOption("profileLadder.fancy"
   col.predicted <- colors$col.predicted
   col.unknown   <- colors$col.unknown
   col.info      <- colors$col.info
-  
+  digits.info   <- colors$display.digits
+    
   ### FANCY print option (auxiliary function)
-  print_color <- function(triangle, digits = 0, unknown = FALSE){
+  print_color <- function(triangle, digits = digits.info, unknown = FALSE){
     triangle <- as.matrix(triangle)
     n <- nrow(triangle)
     
@@ -94,8 +99,11 @@ print.profileLadder <- function(x, fancy.print = getOption("profileLadder.fancy"
         } else {
           int_str <- format(int_parts[i, j], width = max_int_width[j], justify = "right")
           frac_str <- format(frac_parts[i, j], width = max_frac_width[j], justify = "left")
-          #aligned_num <- paste0(int_str, ".", frac_str)
-          aligned_num <- paste0(int_str)
+          if (digits.info == 0){
+            aligned_num <- paste0(int_str)
+          } else {
+            aligned_num <- paste0(int_str, ".", frac_str)
+          }
         }
         
         val <- triangle[i, j]
