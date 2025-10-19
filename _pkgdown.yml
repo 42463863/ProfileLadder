@@ -19,7 +19,7 @@ navbar:
 reference:
   - title: "Core Functions"
     desc: >
-     The key functions of the ProfileLadder package that implements three functional-based
+     The key functions of the ProfileLadder package that implement three functional-based
      nonparametric (point) reserve prediction algorithsms and the overall distributional 
      reserve prediction implemented in the permutation bootstrap resampling.
     contents:
