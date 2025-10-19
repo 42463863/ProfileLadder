@@ -57,21 +57,25 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>The R package ProfileLadder provides nonparametric, functional-based methods for claims reserving based on aggregated chain-ladder data also known as the run-off triangles. The package implements three estimation/prediction algorithms (PARALLAX, REACT, and MACRAME) and the permutation bootstrap add-on proposed in Maciak, Mizera, and Pešta (2022).</p>
+<p>The <strong>R</strong> package <strong>ProfileLadder</strong> provides nonparametric, functional-based methods for claims reserving based on aggregated chain-ladder data also known as the run-off triangles. The package implements three estimation/prediction algorithms (PARALLAX, REACT, and MACRAME) and the permutation bootstrap add-on proposed in Maciak, Mizera, and Pešta (2022).</p>
+<p>The package offers a flexible and computationally effective framework for point-wise and distributional reserve predictions and includes pertinent visualization and diagnostic tools through S3 methods. It also provides accessor functions and real-world datasets to support exploratory analysis across insurance, operational risks, and other domains where triangular data structures arise, making modern, transparent, and extensible alternatives to classical approaches accessible in insurance industry and academic research.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>The <strong>ProfileLadder</strong> package can be downloaded from CRAN in installed in R by using</p>
+<p>The <strong>R</strong> package <strong>ProfileLadder</strong> can be downloaded from CRAN and installed in R by using</p>
 <pre><code><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ProfileLadder"</span><span class="op">)</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="core-package-functions">Core package functions<a class="anchor" aria-label="anchor" href="#core-package-functions"></a>
 </h2>
 <ul>
-<li><p><a href="reference/parallelReserve.html"><code>parallelReserve</code></a> Implements the PARALLAX and REACT algorithms</p></li>
-<li><p><a href="reference/mcReserve.html"><code>mcReserve</code></a> Implements the MACRAME algorithm</p></li>
-<li><p><a href="reference/permuteReserve.html"><code>permuteReserve</code></a> Distributional reserve prediction (permutation bootstrap)</p></li>
+<li>
+<a href="reference/parallelReserve.html"><code>parallelReserve</code></a> implements the PARALLAX and REACT algorithms</li>
+<li>
+<a href="reference/mcReserve.html"><code>mcReserve</code></a> implements the MACRAME algorithm</li>
+<li>
+<a href="reference/permuteReserve.html"><code>permuteReserve</code></a> provides a distributional reserve prediction (permutation bootstrap)</li>
 </ul>
 </div>
 </div>
