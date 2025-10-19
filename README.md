@@ -6,18 +6,23 @@
 
 ## Overview
 
-The R package ProfileLadder provides nonparametric, functional-based methods for claims reserving based on 
+The **R** package **ProfileLadder** provides nonparametric, functional-based methods for claims reserving based on 
 aggregated chain-ladder data also known as the run-off triangles. 
 The package implements three estimation/prediction algorithms (PARALLAX, REACT, and MACRAME) 
 and the permutation bootstrap add-on proposed in Maciak, Mizera, and Pešta (2022). 
 
 
+The package offers a flexible and computationally effective framework for point-wise and distributional 
+reserve predictions and includes pertinent visualization and diagnostic tools through S3 methods.
+It also provides accessor functions and real-world datasets to support exploratory analysis across insurance, 
+operational risks, and other domains where triangular data structures arise, making modern, transparent, 
+and extensible alternatives to classical approaches accessible in insurance industry and academic research.
 
 
 
 ## Installation
 
-The **ProfileLadder** package can be downloaded from CRAN in installed in R by using
+The **R** package **ProfileLadder** can be downloaded from CRAN and installed in R by using
 
 ```
 install.packages("ProfileLadder")
@@ -27,10 +32,8 @@ install.packages("ProfileLadder")
 ## Core package functions
 
 - [`parallelReserve`](reference/parallelReserve.html)
-  Implements the PARALLAX and REACT algorithms
-  
+  implements the PARALLAX and REACT algorithms
 - [`mcReserve`](reference/mcReserve.html)
-  Implements the MACRAME algorithm
-  
+  implements the MACRAME algorithm
 - [`permuteReserve`](reference/permuteReserve.html)
-  Distributional reserve prediction (permutation bootstrap)
+  provides a distributional reserve prediction (permutation bootstrap)
