@@ -1,7 +1,7 @@
 url: https://42463863.github.io/ProfileLadder
 
 template:
-  logo: "man/figures/logo1.png"
+  logo: "man/figures/logo.png"
   bootstrap: 5
   params:
     bootswatch: flatly
