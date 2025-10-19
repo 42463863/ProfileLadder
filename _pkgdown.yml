@@ -5,6 +5,8 @@ template:
   bootstrap: 5
   params:
     bootswatch: flatly
+  includes:
+    after_body: "sidebar.html"
   extra_css: "pkgdown-extra.css"
 
 
@@ -13,8 +15,7 @@ navbar:
     - text: "Maintainer: Matúš Maciak"
       href: "https://karlin.mff.cuni.cz/~maciak"
       class: "maintainer"
-
-
+      
 reference:
   - title: "Core Functions"
     desc: >
