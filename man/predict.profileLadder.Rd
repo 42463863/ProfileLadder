@@ -21,7 +21,7 @@ observed diagonal (in the cumulative triangle again)}
 \item{methods}{Provides the information about the underlying nonparametric
 (functional-based) method that is used  for the 1-year-ahead prediction (PRALLAX,
 REACT, or MACRAME)}
-\item{newDiagonal}{Numerinc vector representing the prediction of the new running
+\item{newDiagonal}{Numeric vector representing the prediction of the new running
 diagonal (ordered in a way that first value corresponds to the payment for the last
 occurrence period (typically the largest amount) and the last value corresponds
 with the next-year payment for the first occurrence periods---typically the smallest
