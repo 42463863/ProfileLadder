@@ -2,6 +2,9 @@
 <url><loc>https://42463863.github.io/ProfileLadder/404.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/authors.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/index.html</loc></url>
+<url><loc>https://42463863.github.io/ProfileLadder/reference/CZ.casco.html</loc></url>
+<url><loc>https://42463863.github.io/ProfileLadder/reference/CZ.liability.html</loc></url>
+<url><loc>https://42463863.github.io/ProfileLadder/reference/CZ.property.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/CameronMutual.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/GFCIB.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/MidwestMutual.html</loc></url>
@@ -20,9 +23,11 @@
 <url><loc>https://42463863.github.io/ProfileLadder/reference/plot.mcSetup.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/plot.permutedReserve.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/plot.profileLadder.html</loc></url>
+<url><loc>https://42463863.github.io/ProfileLadder/reference/predict.profileLadder.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/print.mcSetup.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/print.permutedReserve.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/print.profileLadder.html</loc></url>
+<url><loc>https://42463863.github.io/ProfileLadder/reference/print.profilePredict.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/set.fancy.print.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/summary.mcSetup.html</loc></url>
 <url><loc>https://42463863.github.io/ProfileLadder/reference/summary.permutedReserve.html</loc></url>
