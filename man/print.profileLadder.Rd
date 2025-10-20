@@ -18,7 +18,7 @@ Specific colors for the fancy print option and the number of decimal points
 to be used can be set by the function \code{set.fancy.print()}.
 The fancy print option can be supressed by \code{options(profileLadder.fancy = FALSE)}.}
 
-\item{...}{further arguments passed to \code{print}}
+\item{...}{further arguments passed to \code{print()}}
 }
 \value{
 displays information resulting from a call of the \code{parallelReserve()}

@@ -20,12 +20,14 @@ reference:
   - title: "Core Functions"
     desc: >
      The key functions of the ProfileLadder package that implement three functional-based
-     nonparametric (point) reserve prediction algorithsms and the overall distributional 
-     reserve prediction implemented in the permutation bootstrap resampling.
+     nonparametric (point) reserve prediction algorithsms, the overall distributional 
+     reserve prediction implemented in the permutation bootstrap resampling, and the prediction 
+     of the next running diagonal (so-called 1-year-ahead prediction).
     contents:
       - parallelReserve
       - mcReserve
       - permuteReserve
+      - predict.profileLadder
 
   - title: "Utility Functions"
     desc: >
@@ -44,6 +46,7 @@ reference:
       - print.mcSetup
       - print.permutedReserve
       - print.profileLadder
+      - print.profilePredict
       - summary.mcSetup
       - summary.permutedReserve
       - summary.profileLadder
@@ -64,6 +67,9 @@ reference:
     contents:
       - CameronMutual
       - covid19CZ
+      - CZ.casco
+      - CZ.liability
+      - CZ.property
       - GFCIB
       - MidwestMutual
       - NevadaGeneral
