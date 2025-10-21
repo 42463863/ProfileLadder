@@ -36,6 +36,7 @@
 #' predict(parallelReserve(CameronMutual))
 #' 
 #' @export
+#' @method predict profileLadder
 predict.profileLadder <- function(object, ...){
   ### input data checks
   if (!inherits(object, "profileLadder")){

@@ -37,3 +37,5 @@ install.packages("ProfileLadder")
   implements the MACRAME algorithm
 - [`permuteReserve`](reference/permuteReserve.html)
   provides a distributional reserve prediction (permutation bootstrap)
+- [`predict.profileLadder`](reference/predict.profileLadder.html)
+  1-step-ahead prediction (prediction of the next running diagonal)

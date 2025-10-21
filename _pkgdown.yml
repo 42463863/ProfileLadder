@@ -56,6 +56,7 @@ reference:
       - plot.mcSetup
       - plot.permutedReserve
       - plot.profileLadder
+      - plot.profilePredict
 
   - title: "Other"
     contents:
