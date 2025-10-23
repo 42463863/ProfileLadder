@@ -112,7 +112,7 @@ plot.profilePredict <- function(x, xlab = "Development period",
     
     if (default.legend){
       graphics::legend("topleft", legend = c(paste(method, " predicted diagonal: ", 
-                                                       round(x$newDiagonal,0), sep = ""),
+                                                       round(x$reserve,0), sep = ""),
                                                  paste("True new running diagonal: ", 
                                                        round(sum(trueLadder[,(m - n + 1):m][last]), 0), sep = "")),  
                        pch = 22, pt.bg = c("#CC00CC", "gray"), fill = "lightgray", 
@@ -143,7 +143,7 @@ plot.profilePredict <- function(x, xlab = "Development period",
     
     if (default.legend){
       graphics::legend("topleft", legend = c(paste(method, " predicted diagonal: ", 
-                                                       round(x$newDiagonal, 0), sep = "")),  
+                                                       round(x$reserve, 0), sep = "")),  
                        pch = 22, pt.bg = c("#CC00CC"), fill = "lightgray", 
                        border = "lightgray", box.lwd = 0, box.col = "white", bg = "white")
     }
