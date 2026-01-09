@@ -13,7 +13,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/42463863/ProfileLadder/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/42463863/ProfileLadder/blob/v0.2.2/DESCRIPTION)
 
 Maciak M, Matúš R, Mizera I, Pešta M (2026). *ProfileLadder:
 Functional-Based Chain Ladder for Claims Reserving*.
