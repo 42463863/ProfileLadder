@@ -17,11 +17,14 @@ Encoding: UTF-8
 Imports: ChainLadder (>= 0.2.12), raw (>= 0.1.8), crayon (>= 1.5.0)
 Suggests: 
     pbapply (>= 1.7-4),
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
 LazyData: true
 Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Packaged: 2024-11-26 15:44:01 UTC; root
-Repository: CRAN
+VignetteBuilder: knitr
+
 
