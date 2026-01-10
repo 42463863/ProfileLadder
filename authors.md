@@ -17,12 +17,12 @@ Source:
 
 Maciak M, Matúš R, Mizera I, Pešta M (2026). *ProfileLadder:
 Functional-Based Chain Ladder for Claims Reserving*. R package version
-0.2.2, <https://github.com/42463863/ProfileLadder>.
+0.2.2, <https://42463863.github.io/ProfileLadder>.
 
     @Manual{,
       title = {ProfileLadder: Functional-Based Chain Ladder for Claims Reserving},
       author = {Matúš Maciak and Rastislav Matúš and Ivan Mizera and Michal Pešta},
       year = {2026},
       note = {R package version 0.2.2},
-      url = {https://github.com/42463863/ProfileLadder},
+      url = {https://42463863.github.io/ProfileLadder},
     }
