@@ -1,0 +1,756 @@
+---
+title: "Functional-Based Reserving with the R Package ProfileLadder"
+author: Matúš Maciak, Rastislav Matúš, Ivan Mizera, and Michal Pešta
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Functional-Based Reserving with the R Package ProfileLadder}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+
+The **R** package `ProfileLadder` provides nonparametric, functional-based methods for claims reserving based on aggregated chain-ladder data also known as the *run-off triangles*. The package implements three estimation/prediction algorithms (PARALLAX, REACT, and MACRAME) and the permutation bootstrap add-on proposed in Maciak, Mizera, and Pešta (2022).
+
+The package offers a flexible and computationally effective framework for point-wise and distributional reserve predictions and includes pertinent visualization and diagnostic tools through standard S3 methods---such as `plot()`, `predict()`, `print()`, or `summary()`. It also provides accessor functions and real-world datasets to support exploratory analysis across insurance, operational risks, and other domains where triangular data structures arise, making modern, transparent, and extensible alternatives to classical approaches accessible in insurance industry and academic research.<br>
+
+The following lines provide an illustrative sample analysis and reserve prediction for two specific run-off triangles using all three nonparametric prediction algorithms and other functions introduced within the `ProfileLadder` package. The functionality of the core functions of the package are and some important features are presented and discussed. Further theoretical details can be found in 
+
+<div style="border: 1px solid #ff0000; background-color: #F5E4E6; padding: 10px; border-radius: 5px;">
+<p>
+Maciak, M., Mizera, I., and Pešta, M. (2022). **Functional Profile Techniques for Claims Reserving**. *ASTIN Bulletin*, 52(2), 449 -- 482.
+DOI: [10.1017/asb.2022.4](https://www.cambridge.org/core/journals/astin-bulletin-journal-of-the-iaa/article/abs/functional-profile-techniques-for-claims-reserving/6A4C1D8FA8FC608CCF2C55BDE4C4522D)
+</p>
+</div>
+
+**************
+
+## Package manual and GitHub pages 
+
+- PDF/HTML manual: [https://CRAN.R-project.org/package=ProfileLadder](https://CRAN.R-project.org/package=ProfileLadder)
+- GitHub Pages: [https://42463863.github.io/ProfileLadder/index.html](https://42463863.github.io/ProfileLadder/index.html)
+
+The package `ProfileLadder` can be installed directly from CRAN using a standard command
+
+```{r, eval = F}
+install.packages("ProfileLadder")
+```
+
+The package `ProfileLadder` also allows for a convenient and elegant integration with the leading actuarial **R** package `ChainLadder` commonly utilized for risk assessment and actuarial practice. This is mainly ensured through two functions implemented in `ProfileLadder`, `as.profileLadder()` and `observed()`. Therefore,  both these actuarial libraries (**R** packages) are used in the following illustrations.  
+
+```{r, eval = T, message = F}
+library("ProfileLadder")
+library("ChainLadder")
+```
+
+
+## Package structure
+
+The key functions of the `ProfileLadder` package that implement three functional-based nonparametric (point) reserve prediction algorithms and the overall (distributional) reserve prediction in terms of the proposed  permutation bootstrap resampling  are
+
+- `parallelReserve()` -- for PARALLAX and REACT;
+- `mcReserve()` -- for the MACRAME algorithm;
+- `permuteReserve()` -- for the permutation bootstrap add-on.
+
+Note some obvious (and practically convenient) similarities of the notation and the implementation details that shared with the **R** package `ChainLadder`. More details about the package structure---all functions, S3 type methods, accessor functions, and illustrative datasets 
+can be found on [GitHub Pages](https://42463863.github.io/ProfileLadder/reference/index.html).
+
+
+## Notation and example datasets
+
+There are two real datasets---cumulative run-off triangles (both from the package `ProfileLadder`)---used in the following claims reserving example. 
+
+The *cummulative run-off triagle* is a specific data structure represented by a collection of random variables denoted as $\{Y_{i,j};~i = 1, \dots, n; j = 1, \dots, n - i + 1\}$,
+where the rows $\{(Y_{i. 1}, \dots, Y_{i, n - i + 1})\}_{i = 1}^n$ are typically assumed to be independent among each other and they represent the origins of the reported claims. 
+The columns, on the other hand, represent the development periods. 
+
+The *incremental run-off triagle* is an analogous dataset represented by a collection of random variables $X_{i,j}$'s, $\{X_{i,j};~i = 1, \dots, n; j = 1, \dots, n - i + 1\}$, 
+where $X_{i,j} = Y_{i,j} - Y_{i, j - 1}$, for $i \in \{1, \dots, n\}$ and $j = 1, \dots, n - i + 1$, where, in addition, $Y_{i,0} = 0$ for completeness. 
+
+There are numerous (real-life) datasets (run-off triangles) not only from the actuarial practice provided as an integral part of the `ProfileLadder` package 
+while most of them were not yet made available in any other **R** package nor any other publicly available source. 
+Some of the datasets are unique in this aspect: For instance, the dataset `GFCIB`, provided by the Guarantee Fund of the Czech Insurers’ Bureau (GFCIB) and datasets `CZ.casco`, `CZ.liability`, and `CZ.property` 
+provided by a major and market-leading insurance company in the Czech Republic contain relatively large (compared to other publicly available actuarial data) run-off triangles (for example, `GFCIP` from 
+the mandatory car insurance in the Czech Republic contains $60$ origins/quarters and $60$ development periods---quarters again). Similarly, the datasets `CZ.casco`, `CZ.liability`, and `CZ.property` 
+provide separate run-off triangles for gross paid amounts and RBNS reserves (all with the dimensions $17 \times 17$ years).
+
+A comprehensive overview of the data included in the `ProfileLadder` package can be obtained in a standard way by using the command
+
+```{r, eval = F}
+data(package = "ProfileLadder")
+```
+
+Two particular run-off triangles are selected in the following illustrations: 
+
+### a) Cameron Mutual Insurance Company Data
+
+The dataset belongs to a larger database of real run-off triangles (provided by Mayers and Shi, 2011)
+and available also (in a long format structure) in the **R** package `raw`. The run-off triangle is completed 
+into a full square---meaning that "future" payments are  known (typically they are provided 
+retrospectively, mainly for some evaluation and back-testing purposes). 
+`
+```{r, eval = T}
+help("CameronMutual") ## output omitted
+(cameron <- CameronMutual)
+```
+
+### b) Vehicles Damages within a Conventional Full Casco Insurance
+
+The second dataset represents a standard run-off triangle as it is typically available for actuaries when performing the risk assessment task
+and predicting the point and distributional reserve. The dataset represents cumulative payments for claims related to the compulsory vehicle insurance in the Czech Republic (having 17 origin years and, similarly, 17 development perios---years again). 
+
+```{r, eval = T}
+help("CZ.casco") ## output omitted
+(casco <- CZ.casco$GrossPaid)
+```
+
+**************
+
+## 1. Data visualization with `ProfileLadder`
+
+Run-off triangles can be either printed in terms of a complete/incomplete matrix (as above) or the data 
+can be visualized using a standard `plot()` method; however, two different S3 classes for the underlying run-off triangle can be used---the run-off triangle is either of the class `triangle` (the S3 class provided by the  actuarial package `ChainLadder`) or an extented triangle class `profileLadder`, implemented in the **R** package `ProfileLadder`, can be used as a more complex alternative:
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+par(mfrow = c(1,2))
+
+### S3 class 'triangle' from the ChainLadder pkg
+plot(as.triangle(casco))
+
+### S3 class 'profileLadder' from the ProfileLadder pkg
+plot(as.profileLadder(casco))
+```
+
+The extended triangle class `ProfileLadder` (which can be converted from the S3 classes `triangle` or `matrix` by using the `as.profileLadder()` function) allows, in addtion, for plotting the future ("unknown") profiles---if they are provided in the data for some comparisons, back-testing, or other evaluation purposes. 
+This can be illustrated for the Cameron Mutual insurance data (that contain such future profiles): 
+
+```{r, eval = T, fig.width=12, fig.height=3, out.width="98%"}
+par(mfrow = c(1,3))
+### S3 class 'triangle' from the ChainLadder pkg
+plot(as.triangle(cameron))
+
+### S3 class 'profileLadder' from the ProfileLadder pkg 
+plot(as.profileLadder(observed(cameron)))
+
+### S3 class 'profileLadder' (run-off triangle with future profiles)
+plot(as.profileLadder(cameron))
+```
+
+Once the future profiles are provided in the data, the information about the true reserve, typically denoted as $R$ and defined as 
+$$
+R = \sum_{i = 1}^n Y_{i, n} - \sum_{i = 1}^n Y_{i, (n - i + 1)},
+$$
+is also reflected in the legend as `True (unknown) reserve` (see the right panel in the figure above). Otherwise, the task of an actuary is to predict the reserve as 
+$$
+\widehat{R} = \sum_{i = 2}^n \widehat{Y}_{i, n} - \sum_{i = 2}^n Y_{i, (n - i + 1)},
+$$
+where $\widehat{Y}_{i, n}$ for $i = 2, \dots, n$ represents the predicted *ultimate payments* (the last column of the completed run-off triangle). The quantity $\sum_{i = 1}^n Y_{i, (n - i + 1)}$ represents the amount of already paid claims (the sum of the last *running diagonal*, values $Y_{i, n - i + 1}$, for $i = 1, \dots, n$). 
+
+
+<div style="border: 1px solid #66a3ff; background-color: #eeeeee; padding: 10px; border-radius: 5px;">
+<p><strong>Note:</strong> The utility function `observed()`, used in the code above and implemented in the **R** package `ProfileLadder`,
+allows an easy integration of the package with the core actuarial library `ChainLadder` and, particularly, the easily use the data from other **R** package  `raw` in both parametric and nonparametric reserving techniques. 
+More details can be found using the R help session `help("observed")`.
+</p>
+</div>
+
+## 2. PARALLAX
+The idea of the PARALLAX algorithm (**PARALL**el **A**ppro**X**imation of missing fragments), is to impute the missing parts of the run-off triangle by the most similar segments---triangle rows that can be found among the already observed development profiles. The name reflects the fact that the imputation of missing segments in unobserved functional development profiles is always performed in a parallel way using the observed fragments.
+
+To illustrate the principle, we use the Cameron Mutual data first. The run-off triangle  provides also the "unknown"
+future outcomes (functional profile segments that are supposed to be predicted by the algorithm). However, typical information
+used in the actuarial practice (for claims reserving and reserve prediction) would be of the run-off triangle form as
+
+```{r, eval = T}
+observed(cameron)
+```
+
+A fancy print option is also implemented in the `ProfileLadder` package to visually distinguish between the data part that 
+is typically available at the time of the reserve prediction and the data that are provided ex-post for some evaluation purposes. 
+This can be set or altered (in the interactive environments only) by 
+
+```{r, eval = F}
+options(profileLadder.fancy = TRUE) 
+set.fancy.print() ## custom-defined colors
+```
+
+The prediction of the future claims performed by the PARALLAX algorithm is obtained as
+
+```{r, eval = T}
+(parallax.cameron <- parallelReserve(cameron))
+```
+
+As far as the input data also contains "unknown" future developments, the output above also provides 
+the amount of the true reserve (`7963` -- which is not printed otherwise). Standard summary method can 
+be applied to the output of the `parallelReserve()` function -- the S3 object of the class `ProfileLadder`: 
+
+```{r, eval = T}
+summary(parallax.cameron)
+```
+
+The summary output above is analogous to the output provided by parametric reserving methods implemented in `ChainLadder`. For example, considering 
+a typical benchmark over-dispersed Poisson model (ODP) implemented in `glmReserve()` from the R package `ChainLadder`, the following summary output is provided: 
+
+```{r, eval = T}
+summary(glmReserve(observed(cameron)))
+```
+
+Due to obvious analogy between the outputs from the nonparametric reserving method ('parallelReserve()') and the standard parametric approach (`glmReserve()`) we omit further interpretation of the whole output and we only focuss on differences. 
+
+<div style="border: 1px solid #66a3ff; background-color: #eeeeee; padding: 10px; border-radius: 5px;">
+<p><strong>Note:</strong> The outout from the `summary()` method  applied to the S3 class object `profileLadder` produced by the `parallelReserve()` function 
+from the R package `ProfileLadder` shares the same layout as the summary method applied to the classical parametric reserving methods from the **R** package `ChainLadder` In the example above, the `summary()`  method is applied to the object of the class `glmReserve` produced by `glmReserve()`. 
+
+Note, that the `First` column is only given in the output for the nonparametric reserving method (`ProfileLadder` package) while the columns denoted as `S.E` and `CV` are only 
+available for the parametric approach (`ChainLadder` package). This is due to the fact that the ODP model is based on a specific distributional assumption and, therefore, 
+standard errors (`S.E`) and the coefficient of variation (`CV`) can be both directly obtained. The nonparametric PARALLAX algorithm is, however, model-free and, therefore, 
+the point prediction of the reserve is provided only (unless a bootstrap resampling add-on is used -- see Section 5). 
+
+On the other hand, the summary for PARALLAX gives important information about the origin stability -- which is, in practice, very often accessed from the first run-off triangle column. 
+
+Some additional information is also provided in the second part of the output. In particular, beside the predicted reserve (`Est.Reserve`)
+and the predicted ultimates (`Est.Ultimate`), there is also the sum of the running diagonal provided (`Paid Amount`). In addition, if the run-off triangle is accompanied with the true future outcomes, then the true reserve and the prediction accuracy in terms of the ratio of the predicted amount and the true value are both provided. 
+</p>
+</div>
+
+If the same reserving method is applied to the Casco insurance data (i.e., incomple run-off triangle profiles) 
+the summary output is very similar but some values are missing in the outputs (`NA`s are provided instead):  
+
+```{r, eval = T, fig.width=12, fig.height=5}
+parallax.casco <- parallelReserve(casco)
+summary(parallax.casco)
+```
+
+Beside the reserve prediction $\widehat{R} = 287635$ (given in thousands CZK) there is also an information about the estimated ultimate payments 
+(the sum of the last column in the completed run-off triangle), and the summary of the claims being already paid--- `Paid Amount` $13 493 231$ (again in thousands CZK). Note that last two values in the output are denoted as `NA` because the future outcomes are not available for the given run-off triangle. Both  predictions can be directly visualized using the S3  method `plot()`: 
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+par(mfrow = c(1,2))
+plot(parallax.cameron)
+plot(parallax.casco)
+```
+
+
+
+
+
+
+In general, the output of the `parallelReserve()` function is a list of the S3 method class `profileLadder` with the following  elements: 
+
+- `$reserve` -- a numeric vector with four quantities: `Paid Amount` gives the overall claim payments being already settled by the insurance company -- the sum 
+of the last observed diagona, $\sum_{i = 1}^n Y_{i, n - i + 1}$; `Estimated Ultimate` states for the predicted total amount of claim payment -- the sum of the last column in 
+the completed run-off triangle, $\sum_{i = 1}^n \widehat{Y}_{i, n}$; `Estimated Reserve` gives the point prediction of the reserve $\widehat{{R}}$ -- defined as the difference $\sum_{i = 1}^n \widehat{Y}_{i, n} - \sum_{i = 1}^n Y_{i, n - i + 1}$; Finally, `True Reserve` provides the true value of the reserve if such information is available;
+
+- `$method` -- type of the prediction algorithm being used to complete the run-off triangle and to give the point prediction of the reserve (`PARALLAX`,  `REACT`, or `MACRAME`);
+
+- `$Triangle` -- the input run-off triangle;
+
+- `$FullTriangle` -- the completed run-off triangle -- a full $n \times n$ square; 
+
+- `$trueComplete` -- the true run-off triangle -- if available.
+
+
+
+## 3. REACT 
+
+The REACT algorithm (approximation by the most **RE**cent **AC**ciden**T** year) is implemented within the same **R** function as the PARALLAX algorithm---the `parallelReserve()` function with an additional parameter `method = "react"` being specified.
+In addition to the choice of the REACT algorithm, the following **R** code also asks for the residuals, that should be provided in the output. The same option (with the same functionality) also applies for the PARALLAX algorithm (although it was not mentioned in the section above). 
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+react.cameron <- parallelReserve(cameron, method = "react", residuals = TRUE)
+summary(react.cameron, plotOption = TRUE)
+```
+
+Unlike the output from the PARALLAX algorithm, there is an additional information about the incremental residuals provided in the output from REACT. Residuals are typically used by actuaries to evaluate the performance of the prediction. 
+The residuals are available from the corresponding list item `$residulas` (which is provided in the output---the object of the class `profileLadder`---if the residuals are selected, i.e., `residuals = TRUE`). The residuals are defined as differences between true incremental payments $X_{i,j}$ and the predicted ones \widehat{X}_{i,j}$ and they can be also printed within the triangle as
+
+```{r, eval = T, fig.width=12, fig.height=5}
+react.cameron$residuals
+```
+
+
+
+If there are no residuals provided in the output (i.e., `residuals = FALSE`) and the graphical option is set to  `plotOption = TRUE`, 
+then slightly different figure (with the prediction summary in terms of a barplot) is provided:
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+summary(parallelReserve(cameron, method = "react"), plotOption = TRUE)
+```
+
+
+<br>
+<div style="border: 1px solid #66a3ff; background-color: #eeeeee; padding: 10px; border-radius: 5px;">
+<p><strong>Note:</strong> There are two sets of residuals typically used by actuaries and both of them can be provided in the output of the `parallelReserve()` function. 
+Either standard residuals in terms of $X_{i,j} - \widehat{X}_{i,j}$ are provided if the "future" (unknown) increments 
+are available (for instance, for some retrospective back-testing or validation purposes) or, alternatively, so-called "back-fitted" residuals are calculated instead. 
+
+The main idea behind the back-fitted residuals is to flip the completed triangle, transform it back to the run-off triangle by deleting the lower triangularpart, and to use such run-off triangle as an~input to back-predict the run-off triangle by applying the same estimation procedure in~a~reverse manner so to say. Formally, the flipped matrix is a transposition with respect to the second diagonal---mathematically expressed, for a completed square $\{\widehat{Y}_{i,j};~i = 1, \dots, n; j = 1, \dots, n\}$, the "flipped triangle" is the square $\{\widetilde{Y}_{i,j};~i= 1, \dots, n; j = 1, \dots, n\}$, where $\widetilde{Y}_{i,j} = \widehat{Y}_{n + 1 - i, n + 1 - j}$.
+
+For illustration, and differences between the standard incremental residuals and the back-fitted residuals (that are more common in claims reserving practice), compare the following two outputs: 
+
+```{r, eval = F, fig.width=12, fig.height=5}
+### standard residuals for a fully observed square
+parallelReserve(cameron, method = "react", residuals = TRUE)$residuals  
+
+### backfitted residuals for the observed run-off triangle only
+parallelReserve(observed(cameron), method = "react", residuals = TRUE)$residuals
+```
+</p>
+</div>
+
+
+## 4. MACRAME
+
+The idea of the MACRAME algorithm (**MA**rkov **C**hain f**RA**g**ME**nt approximation) is to utilize a homogeneous Markov chain (MC) model to obtain the reserve prediction. 
+This strategy is slightly different and more complex than the previous two; despite its additional mathematical complexity, however, it is quite intuitive and can be seen as a complex 
+but rigorous generalization of the previous two algorithms described above. The underlying stochastic model invites additional user-defined adjustments and practically oriented modifications.
+
+
+Unlike the previous two algorithms, MACRAME is based on the incremental run-off triangle. In the first step, the algorithm transforms the incremental payments 
+$\{X_{i,j}; i = 1, \dots, n; j = 1, \dots, n + 1 - i\}$ into a finite set  of  states of a homogeneous Markov chain, ${S} = \{s_1, \dots, s_m\}$, and the observed run-off triangle is used to estimate the matrix of the corresponding transition probabilities $\mathbb{P} = \big(p(s_{\iota_1}, s_{\iota_2})\big)_{\iota_1 = 1, \iota_2 = 1}^{|{S}|, |{S}|}$, 
+for 
+$$p(s_{\iota_1}, s_{\iota_2}) = \mathsf{P}[U_{i, j + 1} = s_{\iota_2} | U_{i, j} = s_{\iota_1}]$$ 
+where the increment $X_{i, j}$ is represented by the Markov state from ${S}$ that is taken by  $U_{i,j}$.
+Thus, there are three pivots behind the MACRAME algorithm: 
+
+
+- **Break points** -- the set of points $- \infty = g_0 < g_1 < \dots < g_{m - 1} < g_m = \infty$;
+- **Markov states** -- the set of points $S = \{s_1, \dots, s_m\}$, where, typically, $m = n$;
+- **Transition matrix**  -- the matrix $\mathbb{P} = \big(p(s_{\iota_1}, s_{\iota_2})\big)_{\iota_1 = 1, \iota_2 = 1}^{|{S}|, |{S}|}$ with the corresponding estimates for the probabilities of transitions between the states.
+
+
+The MACRAME algorithm is implemented in the **R** function `mcReserve()` (from the `ProfileLadder` package) using a similar scope as the `parallelResrve()` function discussed above. 
+The run-off triangle completion and the reserve prediction obtained by the DEFAULT (data-driven) verion of the MACRAME algorithm can be obtained by running
+
+
+```{r, eval = T, fig.width=12, fig.height=5}
+(macrame.cameron <- mcReserve(cameron))
+```
+
+
+The output of the MACRAME algorithm is again the S3 class object `profileLadder` and, thus, the same S3 methods as before can be applied again (in particuler, the following S3 methods 
+are available: `print()`, `plot()`, and `summary()`).  The performance of all three nonparametric prediction algorithms (PARALLAX, REACT, and MACRAME) can be quantitatively and 
+visually compared (using the Cameron Mutual dataset). 
+
+```{r, eval = T, fig.width=12, fig.height=3.5, out.width="98%"}
+par(mfrow = c(1,3))
+
+### PARALLAX reserve prediction and run-off completion
+plot(parallelReserve(cameron))
+
+### REACT reserve prediction and run-off completion
+plot(parallelReserve(cameron, method = "react"))
+
+### MACRAME reserve prediction and run-off completion
+plot(mcReserve(cameron))
+```
+
+The red curve segments represent the predicted profile completions. The blue solid lines represent the available data---the underlyhing run-off triangle 
+and the blue dotted lines stands for the "unknown" true developments (if available in the input data). 
+
+Recall, that the true reserve is $R = 7963$. The reserve predictions provided by the proposed nonparametric reserving methods are 
+
+- PARALLAX: $\widehat{R} = 8540$
+- REACT: $\widehat{R} = 8358$
+- MACRAME: $\widehat{R} = 8082$
+
+This can be directly compared with the performance of some common parametric reserving methods
+implemented in the `ChainLadder` package: 
+
+- chainladder method (implemented in `chainladder()`): $\widehat{R} = 8687$
+- over-dispersed Poisson model (`glmReserve()`): $\widehat{R} = 8601$
+- Tweedie model (`tweedieReserve()`): $\widehat{R} = 8610$
+
+The best reserve prediction (in terms of the smallest difference between the true reserve) is given by the MACRAME algorithm. 
+More complex empirical comparisons can be found in Maciak, Mizera, and Pešta (2022). 
+
+The underlying stochastic model behind the MACRAME algorithm invites additional user-defined adjustments and practically 
+oriented modifications; unlike the MACRAME algorithm described in Maciak, Mizera, and Pešta (2022), where only a constrained 
+and rather limited version of the algorithm was proposed, the implementation in the **R** function `mcReserve()` in the `ProfileLadder`
+package allows for all kinds of fine tuning and user-based modifications. Specific details can be either found 
+in Maciak, Matúš, Mizera, and Pešta (2026) or in the package documentation ([GitHub](https://42463863.github.io/ProfileLadder/) or [CRAN](https://CRAN.R-project.org/package=ProfileLadder)). 
+
+
+<div style="border: 1px solid #ff0000; background-color: #F5E4E6; padding: 10px; border-radius: 5px;">
+<p>
+Maciak, M., Mizera, I., and Pešta, M. (2022). **Functional Profile Techniques for Claims Reserving**. *ASTIN Bulletin*, 52(2), 449 -- 482.
+DOI: [10.1017/asb.2022.4](https://www.cambridge.org/core/journals/astin-bulletin-journal-of-the-iaa/article/abs/functional-profile-techniques-for-claims-reserving/6A4C1D8FA8FC608CCF2C55BDE4C4522D)
+
+Maciak, M., Matúš, R., Mizera, I., and Pešta, M. (2026). **ProfileLadder: Functional-Based Reserving**. *The R journal*, *(to appear)*.
+URL: [https://journal.r-project.org/issues.html](https://journal.r-project.org/issues.html)
+</p>
+</div>
+
+
+### User-based modifications of MACRAME
+
+The implementation of the algorithm in the R function `mcReserve()` allows users to intervene with various modifications---starting with a pre-specified  
+number of the Markov states to be required, selecting the method how the run-off triangle increments are summarized into the states, 
+or  providing a fully manual specification of the states  ${S} = \{s_1, \dots, s_m\}$, breaks $\{g_k\}_{k = 0}^m$, or the subset of increments to be used.
+
+Details (that are omitted here) can be found in the R help session for the `mcReserve()` function by typing
+```{r, eval = F, fig.width=12, fig.height=5}
+help("mcReserve")
+```
+
+
+In order to get some useful insight about the structure of the incremental run-off triangle and to offer some visual inspection 
+for various user-based modifications of the underlying Markov chain in the `mcReserve()` function, 
+there is another practical tool implemented in the `ProfileLadder` package---function `incrExplor()`. 
+
+The function takes the run-off triangle as an input (fully observed or not, incremental or cumulative) and returns 
+a complex empirical exploration of the incremental payments (that are used by `macrame()` to set the Markov chain 
+within the MACRAME algorithm).
+
+The default performance of the `incrExplor()` function returns a fully data-driven setup of the underlying Markov chain---the set of the data-driven  Markov states and the corresponding set of break points: 
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+(exploratory.casco <- incrExplor(casco))
+```
+
+The output from the `incrExplor()` function is an object of the S3 class `mcSetup` and 
+the  S3 methods `summary()` and `plot()` can be applied to get further details. 
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+summary(exploratory.casco)
+plot(exploratory.casco)
+```
+
+Using the barplot figure above, the  break-points $\{g_{m}\}_{m = 0}^n$ are listed as interval labels on the $x$ axis. 
+The Markov states (taken by default as medians of the increments belonging to a specific interval defined by two consecutive break points) are given as the blue labes within the bars. 
+
+The data-driven method for defining the break points and the corresponding Markov states (that are provided in the outputs above)
+is described and theoretically justified in Maciak, Mizera, and Pešta (2022). Further details are omiited here. 
+
+Possible user-based modifications are described in the following sections.
+
+#### a) Modifying the underlying Markov states
+
+It can be noticed from the barplot above that there are relatively many small (negative) Markov states (-957.5, -272.0, -129.5, etc.) that are due to many rather small negative increments 
+while there are much more important (from the reserve prediction point of view) and much larger positive claim payments that are reflected in a roughly same amount of positive Markov states. 
+
+Thus, it could be interesting to modify the underlying Markov 
+chain in a way that all negative increments are rather ignored---for instance, by introducing just one state for all zero and negative payments---and to focuss more on crutial claim payments that may heavily effect the final reserve. This can be done by the additional parameter `states = ...` which is implemented in both functions---the exploratory function `incrExplor()` and the prediction algorithm `mcReserve()`. 
+
+In the following outputs, there are eight explicit Markov states used (`c(0, 230, 420, 716, 1645, 3863, 116245, 172120)`) and the corrresponding break points $g_1 < ... < g_{7}$ are determined as middle points between two consecutive Markov states (with $g_0 = -\infty$ and $g_9 = \infty$):
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+plot(modification.1 <- incrExplor(casco, states = c(0, 230, 420, 716, 1645, 3863, 116245, 172120)))
+```
+
+The same set of Markov states can be analogously used to run the MACRAME prediction (the output is omitted for brevity): 
+
+```{r, eval = F, fig.width=12, fig.height=5}
+mcReserve(casco, states = c(0, 230, 420, 716, 1645, 3863, 116245, 172120))
+```
+
+All negative and small (i.e., below $115$) increments are now represented by one Markov state (zero) and other incremental payments 
+are represented by the remaining seven pre-specified states. 
+The MACRAME prediction with the same set of states can be performed by the `mcReserve()` function  by using the dedicated accesor method `mcStates()` as follows (alternatively, the sequence of the states can be also plugged in explicitly): 
+
+```{r, eval = F, fig.width=12, fig.height=5}
+mcReserve(casco, states = mcStates(modification.1))
+```
+
+The run-off triangle incremental payments are no longer equally distributed among the bins---this can be only achieved if the 
+break points are calculated in the proposed data-driven manner. 
+
+
+However, the `states` parameter can be also specified differently. Instead of specifying the underlying set of the Markov states
+it can be used to change the amount of the states. For instance, the choice `states = 5` will 
+result in five Markov states and, again, the increments will be distributed equally (as much as possible). This can be also 
+verified visually by
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+plot(incrExplor(casco, states = 5))
+```
+
+The same Markov states (rounded in the figure above) will be used by the MACRAME algorithm when specifying the same amount of the Markov states, i.e.,  `state = 5`. This can be directly veryfied by the following: 
+
+```{r, eval = T, fig.width=12, fig.height=5}
+macrame.s5.casco <- mcReserve(casco, states = 5)
+mcStates(macrame.s5.casco)
+```
+
+
+The corresponding break points are 
+
+```{r, eval = T, fig.width=12, fig.height=5}
+mcBreaks(macrame.s5.casco)
+```
+
+and the transition matrix with the estimated transition probabilities is 
+
+```{r, eval = T, fig.width=12, fig.height=5}
+mcTrans(macrame.s5.casco)
+```
+
+
+#### b) Specifying explict break points
+
+Another parameter implemented for user modifications of the Markov chain in the MACRAME algorithm 
+is the parameter `breaks` which can be used to explicitly provide the set of break points for the run-off triangle increments. 
+
+However, a valid sequence of the break points---in a sense that $g_1 < g_2 < \dots < g_{m - 1}$---must be provided. The first and the last 
+break point ($g_0 = - \infty$ and $g_m = \infty$) may or may not be specified.  On the other hand, two consecutive break points always 
+need to contain at least one incremental payment in between---otherwise, such consecutive bins are merged together to form a new one. 
+
+Going back to the Casco incurance data where many negative increments were noticed, it can be more appropriate to alter the underlying Markov chain by providing a different set of break points (rather than changing directly the Markov states). In such a way, the corresponding Markov states will be still obtained using a statistical summary method (by default, the Markov states are medians of the increments within the bins).
+
+The default break points are determined in a way that the increments 
+are equaly distributed among 17 non-overlapping bins (where the number of bins being used is, by default, same as the dimension of the run-off triangle). For instance, five bins with explicit breaks points $\{g_{m}\}_{m = 0}^5 \equiv \{-\infty, 0, 100, 500, 5000, \infty\}$ can be obtained by 
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+plot(modification.2 <- incrExplor(casco, breaks = c(0, 100, 500, 5000)))
+```
+
+and the same resuld will be also obtained for any of the following (outputs are omitted): 
+```{r, eval = F, fig.width=12, fig.height=5, out.width="98%"}
+incrExplor(casco, breaks = c(-Inf, 0, 100, 500, 5000))
+incrExplor(casco, breaks = c(0, 100, 500, 5000, Inf))
+incrExplor(casco, breaks = c(-Inf, 0, 100, 500, 5000, Inf))
+```
+
+The corresponding Markov states are calculated (by default) as medians of the increments within each bin
+and they can be assessed by using the `mcStates()` function
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+mcStates(modification.2)
+```
+
+The corresponding MACRAME reserve prediction using the same break points (and the corresponding Markov states as well) 
+is obtained  analogously by 
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+summary(mcReserve(casco, breaks = c(0, 100, 500, 5000)))
+```
+
+
+#### c) Summary method for incremental payments
+
+Instead of summarizing the increments within each bin by considering the median 
+value, another method can be specified by another parameter `method` which can 
+take on of four values: `"median"` (default); `"mean"`, `"min"`, and `"max"`. 
+
+Thus, considering the same set of breaks as before, it can be of some interest 
+to define Markov states not as medians of the increments within each bin but taking 
+maximum in every bin instead. This can be easily achieved by 
+
+```{r, eval = T, fig.width=12, fig.height=5, out.width="98%"}
+new.breaks <- c(0, 100, 500, 5000)
+exploratory.casco2 <- incrExplor(casco, breaks = new.breaks, method = "max")
+plot(exploratory.casco2)
+```
+
+The parameter `method` is only available for the exploratory  function `incrExplor()` and, unlike the parameters `states` and `breaks`, it is not 
+implemented in the `mcReserve()` function. This is, however, not limiting with respect to the performance of the MACRAME algorithm implemented within `mcReserve()`. Indeed, the parameter `method = c("median", "mean", "min", "max")` is used 
+to summarize the increments within each bin defined by the break points in `breaks = ...` and the corresponding 
+Markov states can be assessed from the `incrExplor()` function by using the appropriate accessor method, the function `mcStates()`.
+Consequently, both the breaks (provided explicitly) and the states (obtained as maximal increments within each bin) 
+can be forwarded into the `mcReserve()` function to set up the MACRAME algorithm  correspondingly (output is omitted again): 
+
+```{r, eval = F, fig.width=12, fig.height=5}
+mcReserve(casco, breaks = mew.breaks, states = mcStates(exploratory.casco2))
+```
+
+The previous also implies that users can fully manually set the breaks and the Markov states when running the MACRAME algorithm. 
+A valid set of breaks is needed and the states must be always provided in a way, that exactly one Markov state belongs to one interval 
+determined by two consecutive break points. More details can be found the package documentation---particularly in the following two help sessions
+
+
+```{r, eval = F, fig.width=12, fig.height=5}
+help("incrExplor")
+help("mcReserve")
+```
+
+<div style="border: 1px solid #66a3ff; background-color: #eeeeee; padding: 10px; border-radius: 5px;">
+<p><strong>Note:</strong> There are four parameters implemented in the `incrExplor()` function to help users to properly 
+tune the underlying Markov chain for the MACRAME prediction (`breaks = ...`, `states = ...`,  `method = ...`, and `out = ...`). 
+On the other hand, there are only two parameters used within the `mcReserve()` function. 
+
+The summary method for run-off triangle increments can be enforced within the `mcReserve()` function 
+by using the appropriate accessor functions: 
+
+- `mcBreaks()` -- function for extracting the set of break points from `incrExplor()` or `mcReserve()`;
+- `mcStates()` -- function for extracting the Markov states from `incrExplor()` or `mcReserve()`;
+- `mcTrans()` -- function to extract the estimated transition matrix from `mcReserve()`.
+
+Note that the `mcTrans()` function can be only applied to the output of the `mcReserve()` function as there is not 
+transition probability estimation in the exploratory tool `incrExplor()`.
+
+The parameter `out = ...` implemented in the `incrExplor()` function is discussed in the next section.
+</p>
+</div>
+
+
+
+#### d) Subsets of incremental payments
+
+The default functionality of the `incrExplor()` function is to provide users with the data-driven set of bins (the break points respectively) and the corresponding Markov states for the underlying run-off triangle. The first year payments in the run-off triagnle are not considered by default (further discussion is provided in Maciak, Mizera, and Pešta, 2022), but this restriction can be also altered---if needed. 
+
+If there is a specific interest to also include the first year payments when defining the Markov chain states and the corresponding break points (or, alternatively, to exclude some other columns with the incremental payments), an additional parameter `out = 1` (default) can be changed correspondingly---the default value stands for the first year increments 
+that are typically not considered; the choice `out = 0` uses all available increments $X_{i,j}$, for $i = 1, \dots, n$ and $j = 1, \dots, n + 1 - i$; in order to exclude, for example, first three columns, the parameter can be specified as `out = c(1,2,3)`.  The change of this parameter is also reflected by the output of `incrExplor()` which, in addition, contains analogous information as before, however, for a user-modified subset of the incremental payments. 
+
+```{r, eval = T, fig.width=12, fig.height=8}
+incrExplor(cameron, out = 0)
+```
+
+The S3 method `plot()` can be applied to obtain some graphical visualization of the user-defined subset of increments and their overall summary (together with the comparison with the default selection).
+
+```{r, eval = T, fig.width=12, fig.height=4, out.width="98%"}
+par(mfrow = c(1,2))
+plot(incrExplor(cameron, out = 0))
+```
+
+
+
+#### e) Illustration of different  MACRAME settings
+
+Different settings for the break points and the Markov states result in different reserve predictions (and the corresponding missing profiles completions). In the following, there is again the Cameron Mutual dataset used (with the known true reserve 7963) with the predicted reserves
+ranging from 7827 (slightly underestimated reserve) up to 22587 (heavily overestimated reserve). 
+
+Various user-based modifications are used for the MACRAME predictions below (the first one being the default performance). 
+
+```{r, eval = T, fig.width=12, fig.height=10, out.width="98%"}
+par(mfrow = c(3,2))
+
+plot(mcReserve(cameron)) ### default setting with 10 MC states
+plot(mcReserve(cameron, states = 4)) ### four states (otherwise default)
+plot(mcReserve(cameron, states = c(50, 500, 1500, 3000))) ### explicit states
+plot(mcReserve(cameron, breaks = c(500, 1000, 1500, 2000))) ### explicit breaks
+     
+user.breaks <- c(500, 1000, 1500, 2000)
+user.method <- incrExplor(cameron, breaks = user.breaks, method = "max")
+final.states <- mcStates(user.method)
+### explicit breaks and Markov states as maximma 
+plot(mcReserve(cameron, breaks = user.breaks, states = final.states))
+
+### explicit breaks and explicit states
+plot(mcReserve(cameron, breaks = c(500, 1000, 1500), states = c(100, 999, 1001, 3000))) 
+```
+
+
+
+
+<div style="border: 1px solid #66a3ff; background-color: #e6f0ff; padding: 10px; border-radius: 5px;">
+<p><strong>Note:</strong> The default performance of the MACRAME algorithm implemented by the **R** function `mcReserve()`
+is fully-data driven and it fully corresponds with the breaks and Markov states as proposed and theoretically 
+justified in Maciak, Mizera, and Pešta, (2022). 
+</p>
+</div>
+
+
+
+
+## 5. Permutation bootstrap
+
+The reserve prediction $\widehat{{R}}$  for the unknown claims reserve ${R}$ provides only a partial information in the entire loss reserving problem. In practice, a prediction of the whole reserve distribution is required too (for instance, by risk reserving assessment guidelines like Solvency II).  
+
+Classical techniques employ a residual (parametric or semiparametric) bootstrap approach (typically based on the back-fitted residuals) to emulate the distribution of interest. However, for the functional-based claims reserving there is a different strategy: permutation bootstrap. The prediction of the reserve distribution is still obtained via bootstrap resampling, but the algorithm avoids the use of residuals by resampling (permuting) the whole functional profiles. The rows of the completed run-off triangle produced by a certain algorithm---by each of those described above, but also any of the classical parametric reserving models implemented in the `ChainLadder` package---are treated as independent functional profiles. The completed triangle, the data matrix $\{\widehat{Y}_{i,j}\}_{i,j=1}^{n,n}$, can be standardized: each row is divided by the first positive value within the row (considered from the left---which is, very likely, the first incremental payment in each row). The standardization step is proposed on the grounds that it is very typical in practice that the claims amounts paid in the first development period substantially increase over the years (possibly the effect of economical growth, inflation, more advanced or more expensive technology, etc.). The standardization is set as a default, but the user can suppress it if desiring so.
+
+```{r, eval = T, fig.width=8, fig.height=6}
+permute.cameron <- permuteReserve(mcReserve(cameron), B = 100)
+```
+
+The output from the `permuteReserve()` function is an object of the S3 class `permutedReserve` and S3 methods `summary()` or `plot()`
+can be applied to get more detailed information: 
+
+```{r, eval = T, fig.width=16, fig.height=10, out.width="98%"}
+summary(permute.cameron)
+plot(permute.cameron)
+```
+
+
+Note that in the summary output above there already colums `S.E.` and `CV` provided and they can be directly compared 
+with the values obtained from the distributional assumption (using, for instance, the over-dispersed Poisson model) from the `ChainLadder` package 
+
+```{r, eval = T, fig.width=12, fig.height=8, out.width="98%"}
+summary(glmReserve(observed(cameron)))
+```
+
+
+
+
+<div style="border: 1px solid #66a3ff; background-color: #eeeeee; padding: 10px; border-radius: 5px;">
+<p><strong>Note:</strong> The permutation bootstrap implemented in the **R** function `permuteReserve()` (from the **R** package `ProfileLadder`)
+handles not only objects created by the `parallelReserve()` function and the `mcReserve()` function (thus, S3 objects of the class `profileLadder`) but it also works with the objects generated by the classical reserving techniques---those implemented in the **R** package `ChainLadder` (in particular, the over-dispersed Poisson model, the Mack model, chainladder model, or the Tweedie formula). 
+</p>
+</div>
+
+Note also the same layout used for the S3 method `plot()` when applied to the output of the permutation bootstrap function `pemuteReserve()`
+as the one adoped for the residual  bootstrap resampling in classical parametric chainladder based methods: 
+
+```{r, eval = T, fig.width=12, fig.height=8, out.width="98%"}
+plot(BootChainLadder(observed(cameron)))
+```
+
+
+Thus, the overall distributional (reserve) prediction can be obtained from different perspective: adopting some distributional assumptions (such as the Poisson model), using the residual bootstrap approach, or performing the permutation bootstrap for whole functional profiles. 
+
+
+```{r, eval = T, fig.width=12, fig.height=8}
+cameron.glm <- glmReserve(observed(cameron))
+cameron.boot <- glmReserve(observed(cameron), mse.method = "bootstrap", nsim = 100)
+cameron.permute <- permuteReserve(glmReserve(observed(cameron)), B = 100)
+```
+
+All three `summary()` outputs below contains full information (especially the last two columns denoted as `S.E` and `CV`):
+
+```{r, eval = T, fig.width=12, fig.height=8}
+summary(cameron.glm)
+summary(cameron.boot)
+summary(cameron.permute)
+```
+
+<div style="border: 1px solid #66a3ff; background-color: #eeeeee; padding: 10px; border-radius: 5px;">
+<p><strong>Note:</strong> The `permuteReserve()` function returns a relatively complex **R** object of the 
+S3 class `permutedReserve` which can be quite memory demanding (especially for large run-off triangles 
+and large number of permutations. For this reason, there is an additional parameter 
+`outputAll = TRUE` (set as `TRUE` by default) used to suppress compex outputs and important summary characteristics are 
+printed only (for `outputAll = FALSE`).
+</p>
+</div>
+
+
+
+## 6. Generic S3 method `predict()` 
+
+Finally, there is one key S3 method implemented in the **R** package `ProfileLadder` that was not mentioned yet---the S3 method  `predict()`. 
+This function is not only useful for the actuaries, but it also has important practical utilizations in any type of risk modeling. 
+The S3 method `predict()` is implemented for the objects of the S3 class `profileLadder` that are created by the `parallelReserve()` function 
+or the `mcReserve()` function (for details, we refer to the help session obtained by `help("predict.profileLadder")`.
+
+Instead of completing the run-off triangle into a full square (as performed by one of the algorithms PARALLAX, REACT, or MACRAME), the `predict()` method only returns the prediction of the next running diagonal (also called a *1-step-ahead prediction* in the acturial circles). 
+
+The same nonparametric algorithms are used for the diagonal prediction; however, the output is not a completed square but rather a new (extended) run-off triangle of the dimensions $n \times (n + 1)$:
+
+
+```{r, eval = T, fig.width=12, fig.height=8}
+(diag.cameron <- predict(parallelReserve(cameron)))
+```
+
+The S3 method `plot()` can be used to visualize the diagonal *1-step-ahead* prediction
+
+```{r, eval = T, fig.width=12, fig.height=6, out.width="98%"}
+plot(diag.cameron)
+```
+
+
+
+## Conclussion
+
+The main core of the **R** package `ProfileLadder` consists of three key functions---`parallelReserve()` for applying the PARALLAX or REACT algorithm, `mcReserve()` implementing the MACRAME algorithm, and `permutedReserve()` providing the permutation bootstrap add-on. 
+Another generic functions (for the S3 objects of the class `profileLadder`, `profilePredict`, `mcSetup`, and `permutedReserve`) are also implemented to facilitate a well structured summary of the outputs and  graphical visualizations of the results. 
+
+There are also a few other helpful functions implemented in the `ProfileLadder` package. For a complex description and illustrative examples, we  refer to the **R** help sessions by using the standard `help()` command.
+
+The `ProfileLadder` package is particularly developed to implement nonparametric methods into the actuarial risk assessment process performed by insurance companies (typically on a yearly or quarterly basis). Nevertheless, the underlying run-off triangle can be formally also represented in terms of an incomplete panel data scheme  that is generally well known among statisticians and all types of practitioners. 
+
+
+**************
+
+
+#### Acknowledgement 
+
+The authors express sincere thanks to Kurt Hornik and Rob Hyndman for their insight and some useful pieces of advice regarding the `ProfileLadder` package. The authors are also grateful to Petr Jedlička from the Czech Insurers’ Bureau and Pavel Koudelka from Generali Česká pojišťovna a.s., for providing complex data from real-life insurance practice---not only for internal evaluation purposes but also for public access within the **R** package `ProfileLadder`.
+
