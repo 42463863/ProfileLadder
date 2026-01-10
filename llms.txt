@@ -168,3 +168,9 @@ insurance business.
 - [`xNetSubscribe`](https://42463863.github.io/ProfileLadder/reference/xNetSubscribe.md)
   : Internet Provider Monthly Income Data
 
+# Articles
+
+### All vignettes
+
+- [Functional-Based Reserving with the R Package
+  ProfileLadder](https://42463863.github.io/ProfileLadder/articles/my_vignette.md):
