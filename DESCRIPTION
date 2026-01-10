@@ -9,7 +9,8 @@ Authors@R: c(
     person(given = "Michal", family = "Pešta", role = c("aut")))
 Maintainer: Matúš Maciak <maciak@karlin.mff.cuni.cz>   
 BugReports: https://github.com/42463863/ProfileLadder/issues
-URL: https://github.com/42463863/ProfileLadder
+URL: https://42463863.github.io/ProfileLadder, 
+     https://github.com/42463863/ProfileLadder
 Description: Functional claims reserving methods based on aggregated chain-ladder data, also known as a run-off triangle, implemented in three nonparametric algorithms (PARALLAX, REACT, and MACRAME) proposed in Maciak, Mizera, and Pešta (2022) <doi:10.1017/asb.2022.4>. Additional methods including permutation bootstrap for completed run-off triangles are also provided. 
 Depends: R (>= 4.0.0)
 License: GPL (>=2)
